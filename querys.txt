@@ -1,0 +1,44 @@
+{
+  user {
+    id
+    login
+  }
+  
+  transaction{
+    id
+    type
+    amount
+    objectId
+    userId
+    createdAt
+    path
+  }
+  
+  progress{
+    id
+    userId
+    objectId
+    grade
+    createdAt
+    updatedAt
+    path
+  }
+  
+  result{
+    id
+    objectId
+    userId
+    grade
+    type
+    createdAt
+    updatedAt
+    path
+  }
+  
+  object{
+    id
+    name
+    type
+    attrs
+  }
+}
