@@ -3,48 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>SPA with Multiple CSS Files</title>
+  <!-- Load CSS files for each container -->
+  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="profile.css">
+  <!-- General container visibility styles -->
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      text-align: center;
+    .container {
+      display: none;
     }
-    input {
-      padding: 10px;
-      margin: 10px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
+    .active {
+      display: block;
     }
   </style>
 </head>
 <body>
-
-  <!-- Login Form -->
-  <h2>Login</h2>
-  <input id="username" placeholder="Username or Email" />
-  <input id="password" type="password" placeholder="Password" />
-  <button id="loginBtn">Login</button>
-
-  <!-- JavaScript Files -->
+  <!-- Login Container -->
+  <div id="loginContainer" class="container active">
+    <h2>Login</h2>
+    <input id="username" placeholder="Username or Email">
+    <input id="password" type="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+  </div>
+  
+  <!-- Profile Container -->
+  <div id="profileContainer" class="container">
+    <h1 id="welcomeMessage"></h1>
+    <button id="logoutBtn">Logout</button>
+  </div>
+  
+  <!-- Make sure switcher.js is loaded before app.js -->
+  <script src="switcher.js"></script>
   <script src="app.js"></script>
-  <script>
-    // Connect the login button to the login function
-    window.addEventListener('DOMContentLoaded', () => {
-      const loginButton = document.getElementById('loginBtn');
-      if (loginButton) {
-        loginButton.addEventListener('click', () => {
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          login(username, password);
-        });
-      }
-    });
-  </script>
-
 </body>
 </html>

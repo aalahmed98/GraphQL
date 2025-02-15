@@ -1,0 +1,20 @@
+/* Styles specific to the profile container */
+#profileContainer {
+    background-color: #e0f7fa;
+    padding: 20px;
+    border: 1px solid #aaa;
+    max-width: 400px;
+    margin: 40px auto;
+    border-radius: 5px;
+  }
+  
+  #profileContainer h1 {
+    margin-bottom: 20px;
+  }
+  
+  #profileContainer button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
