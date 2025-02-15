@@ -1,4 +1,3 @@
-// app.js - GraphQL Profile with JWT Authentication (Domain: learn.reboot01.com)
 
 async function login(username, password) {
     try {
@@ -13,7 +12,7 @@ async function login(username, password) {
       const data = await response.json();
       console.log('Login response:', data);
       
-      // Clear old alerts and notify instantly
+  
       alert(data.error ? `Login failed: ${data.error}` : 'Login successful!');
       
       if (response.ok && data.token) {
@@ -54,8 +53,7 @@ async function login(username, password) {
       throw new Error('GraphQL query failed. See console for details.');
     }
   }
-  
-  // Ensure the login button works by adding event listeners
+
   window.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('loginBtn');
     if (loginButton) {
@@ -66,6 +64,4 @@ async function login(username, password) {
       });
     }
   });
-  
-  console.log('App.js loaded. Listening for login attempts.');
   
