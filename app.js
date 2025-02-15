@@ -28,7 +28,7 @@ async function login(username, password) {
     }
   }
   
-  async function queryGraphQL(query) {
+async function queryGraphQL(query) {
     const token = localStorage.getItem('jwt');
     if (!token) {
       alert('No valid JWT found. Please log in first.');
@@ -52,8 +52,35 @@ async function login(username, password) {
       alert(`GraphQL Error: ${result.errors?.[0]?.message || 'Unknown error'}`);
       throw new Error('GraphQL query failed. See console for details.');
     }
+
+
   }
 
+// Display user profile with a greeting and clear the page
+async function displayProfile() {
+    try {
+      const query = `
+        {
+          user {
+            login
+          }
+        }
+      `;
+      const data = await queryGraphQL(query);
+  
+      // Clear the entire page and display greeting
+      if (data && data.user && data.user.login) {
+        document.body.innerHTML = `<h1>Hello, ${data.user.login}!</h1>`;
+      } else {
+        document.body.innerHTML = `<h1>Unable to retrieve user profile.</h1>`;
+      }
+    } catch (error) {
+      console.error('Error displaying profile:', error);
+      document.body.innerHTML = `<h1>An error occurred while displaying your profile.</h1>`;
+    }
+  }
+  
+  // Event listener for login button
   window.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('loginBtn');
     if (loginButton) {

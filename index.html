@@ -3,35 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile Page</title>
+  <title>Login</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .chart { margin-top: 20px; }
-    button { padding: 10px; cursor: pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    input {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Login Form -->
   <h2>Login</h2>
   <input id="username" placeholder="Username or Email" />
   <input id="password" type="password" placeholder="Password" />
   <button id="loginBtn">Login</button>
-  
-  <h2 id="profile">Profile</h2>
-  <p id="usernameDisplay"></p>
-  <div id="xpChart" class="chart"></div>
 
+  <!-- JavaScript Files -->
   <script src="app.js"></script>
   <script>
-    // Ensure DOM elements and functions are properly linked
+    // Connect the login button to the login function
     window.addEventListener('DOMContentLoaded', () => {
       const loginButton = document.getElementById('loginBtn');
-      if (typeof handleLogin === 'function') {
-        loginButton.addEventListener('click', handleLogin);
-        console.log('Login button linked to handleLogin function.');
-      } else {
-        console.error('handleLogin function is not defined in app.js');
+      if (loginButton) {
+        loginButton.addEventListener('click', () => {
+          const username = document.getElementById('username').value;
+          const password = document.getElementById('password').value;
+          login(username, password);
+        });
       }
     });
   </script>
+
 </body>
 </html>
