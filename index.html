@@ -1,42 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPA with Multiple CSS Files</title>
-  <!-- Load CSS files for each container -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPA with Audit Ratio</title>
+  <!-- Load your CSS files -->
   <link rel="stylesheet" href="login.css">
   <link rel="stylesheet" href="profile.css">
-  <!-- General container visibility styles -->
   <style>
-    .container {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
+    /* Optional: any additional global styles */
+    body { font-family: sans-serif; }
   </style>
 </head>
 <body>
-  <!-- Login Container -->
-  <div id="loginContainer" class="container active">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username or Email">
-    <input id="password" type="password" placeholder="Password">
-    <button id="loginBtn">Login</button>
-  </div>
-  
-  <!-- Profile Container -->
-   
-  <div id="profileContainer" class="container">
-    <h1 id="welcomeMessage"></h1>
-    <p id="auditRatioDisplay"></p>
-    <button id="logoutBtn">Logout</button>
-  </div>
-
-  
-  <!-- Make sure switcher.js is loaded before app.js -->
-  <script src="switcher.js"></script>
-  <script src="app.js"></script>
+  <!-- React will render into this root container -->
+  <div id="root"></div>
+  <!-- Load React and ReactDOM via CDN -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel to transpile JSX in the browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Your app.js file -->
+  <script type="text/babel" src="app.js"></script>
 </body>
 </html>
