@@ -62,28 +62,39 @@ function App() {
               'Authorization': `Bearer ${jwt}`
             },
             body: JSON.stringify({
-              query: `
-                {
-                  user {
-                    auditRatio
-                  }
-                }
-              `
+              query:`
+                    {
+                      user {
+                        auditRatio
+                        totalUp
+                        totalDown
+                      }
+                    }
+                  `
             })
           });
           const data = await response.json();
           console.log('GraphQL response:', data);
+          
           if (data.errors) {
             console.error('GraphQL errors:', data.errors);
             setAuditRatio('error');
             return;
           }
-          setAuditRatio(data.data.user.auditRatio);
+      
+          // Fix: Accessing auditRatio correctly from user array
+          if (data.data && data.data.user.length > 0) {
+            setAuditRatio(data.data.user[0].auditRatio);
+          } else {
+            setAuditRatio('No data available');
+          }
+          
         } catch (error) {
           console.error('Error fetching audit ratio:', error);
           setAuditRatio('error');
         }
       }
+      
       fetchAuditRatio();
     }
   }, [jwt]);
