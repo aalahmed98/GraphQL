@@ -5,7 +5,8 @@ function App() {
   const [jwt, setJwt] = useState(localStorage.getItem('jwt') || '');
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [auditRatio, setAuditRatio] = useState(null);
-  const [userSkills, setUserSkills] = useState(null); //added this
+  const [userSkills, setUserSkills] = useState(null);
+  const [userLevel, setUserLevel] = useState(null);
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
@@ -48,7 +49,8 @@ function App() {
     setJwt('');
     setUsername('');
     setAuditRatio(null);
-    setUserSkills(null)
+    setUserSkills(null);
+    setUserLevel(null);
   }
 
   // useEffect hook to fetch audit ratio whenever a valid JWT exists
@@ -97,7 +99,6 @@ function App() {
         }
       }
 
-      //added function
       async function fetchUserSkills() {
         try {
           const graphqlEndpoint = 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
@@ -157,9 +158,59 @@ function App() {
           setUserSkills('error');
         }
       }
+
+      //added function
+      async function fetchUserLevel() {
+        try {
+          const graphqlEndpoint = 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
+          const response = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwt}`
+            },
+            body: JSON.stringify({
+              query:`
+    {
+        transaction(
+            order_by: {amount: desc}
+            limit: 1
+            where: {
+                type: {_eq: "level"},
+                path: {_like: "/bahrain/bh-module%"}
+            }
+        ) {
+            amount
+        }
+    }
+                  `
+            })
+          });
+          const data = await response.json();
+          console.log('GraphQL response:', data);
+          
+          if (data.errors) {
+            console.error('GraphQL errors:', data.errors);
+            setUserLevel('error');
+            return;
+          }
+      
+          if (data.data && data.data.user.length > 0) {
+            setUserLevel(data.data.user[0].userLevel);
+          } else {
+            setUserLevel('No data available');
+          }
+          
+        } catch (error) {
+          console.error('Error fetching user level:', error);
+          setUserLevel('error');
+        }
+        
+      }
       
       fetchAuditRatio();
       fetchUserSkills();
+      fetchUserLevel();
     }
   }, [jwt]);
 
@@ -194,6 +245,9 @@ function App() {
       <h1 id="welcomeMessage">Hello, {username}!</h1>
       <p id="auditRatioDisplay">
         Audit Ratio: {auditRatio === null ? 'Loading...' : auditRatio === 'error' ? 'Error fetching audit ratio' : auditRatio}
+      </p>
+      <p id="UserLevelDisplay">
+        User Level: {userLevel === null ? 'Loading...' : userLevel === 'error' ? 'Error fetching user level' : userLevel}
       </p>
       <div id="userSkillsDisplay">
   <h3>User Skills:</h3>
