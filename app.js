@@ -5,6 +5,7 @@ function App() {
   const [jwt, setJwt] = useState(localStorage.getItem('jwt') || '');
   const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [auditRatio, setAuditRatio] = useState(null);
+  const [userSkills, setUserSkills] = useState(null); //added this
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
@@ -47,6 +48,7 @@ function App() {
     setJwt('');
     setUsername('');
     setAuditRatio(null);
+    setUserSkills(null)
   }
 
   // useEffect hook to fetch audit ratio whenever a valid JWT exists
@@ -94,8 +96,70 @@ function App() {
           setAuditRatio('error');
         }
       }
+
+      //added function
+      async function fetchUserSkills() {
+        try {
+          const graphqlEndpoint = 'https://learn.reboot01.com/api/graphql-engine/v1/graphql';
+          const response = await fetch(graphqlEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwt}`
+            },
+            body: JSON.stringify({
+              query: `
+                query {
+                    transaction(
+                        where: {
+                            _and: [
+                                {type: { _iregex: "(^|[^[:alnum:]_])[[:alnum:]_]*skill_[[:alnum:]_]*($|[^[:alnum:]_])" }},
+                                {type: {_like: "%skill%"}},
+                                {object: {type: {_eq: "project"}}},
+                                {type: {_in: [
+                                    "skill_prog", "skill_algo", "skill_sys-admin", "skill_front-end", 
+                                    "skill_back-end", "skill_stats", "skill_ai", "skill_game", 
+                                    "skill_tcp", "skill_git", "skill_go", "skill_js", 
+                                    "skill_html", "skill_css", "skill_unix", "skill_docker", 
+                                    "skill_sql"
+                                ]}}
+                            ]
+                        }
+                        order_by: [{type: asc}, {createdAt: desc}]
+                        distinct_on: type
+                    ) {
+                        amount
+                        type
+                    }
+                }    
+            `
+            })
+          });
+      
+          const data = await response.json();
+          console.log('GraphQL response:', data);
+          
+          if (data.errors) {
+            console.error('GraphQL errors:', data.errors);
+            setUserSkills('error');
+            return;
+          }
+      
+          // Ensure data structure is correct
+          if (data.data && data.data.transaction) {
+            setUserSkills(data.data.transaction); // Store the array directly
+          } else {
+            setUserSkills('No data available');
+          }
+      
+        } catch (error) {
+          console.error('Error fetching user skills:', error);
+          setUserSkills('error');
+        }
+      }
       
       fetchAuditRatio();
+      fetchUserSkills();
     }
   }, [jwt]);
 
@@ -131,6 +195,25 @@ function App() {
       <p id="auditRatioDisplay">
         Audit Ratio: {auditRatio === null ? 'Loading...' : auditRatio === 'error' ? 'Error fetching audit ratio' : auditRatio}
       </p>
+      <div id="userSkillsDisplay">
+  <h3>User Skills:</h3>
+  {userSkills === null ? (
+    'Loading...'
+  ) : userSkills === 'error' ? (
+    'Error fetching user skills'
+  ) : Array.isArray(userSkills) && userSkills.length > 0 ? (
+    <ul>
+      {userSkills.map((skill, index) => (
+        <li key={index}>
+          {skill.type}: {skill.amount}
+        </li>
+      ))}
+    </ul>
+  ) : (
+    'No skills found'
+  )}
+</div>
+
       <button id="logoutBtn" onClick={logout}>Logout</button>
     </div>
   );
