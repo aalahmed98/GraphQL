@@ -170,42 +170,42 @@ function App() {
               'Authorization': `Bearer ${jwt}`
             },
             body: JSON.stringify({
-              query:`
-    {
-        transaction(
-            order_by: {amount: desc}
-            limit: 1
-            where: {
-                type: {_eq: "level"},
-                path: {_like: "/bahrain/bh-module%"}
-            }
-        ) {
-            amount
-        }
-    }
-                  `
+              query: `
+                {
+                  transaction(
+                      order_by: {amount: desc}
+                      limit: 1
+                      where: {
+                          type: {_eq: "level"},
+                          path: {_like: "/bahrain/bh-module%"}
+                      }
+                  ) {
+                      amount
+                  }
+                }
+              `
             })
           });
+      
           const data = await response.json();
           console.log('GraphQL response:', data);
-          
+      
           if (data.errors) {
             console.error('GraphQL errors:', data.errors);
             setUserLevel('error');
             return;
           }
       
-          if (data.data && data.data.user.length > 0) {
-            setUserLevel(data.data.user[0].userLevel);
+          if (data.data && Array.isArray(data.data.transaction) && data.data.transaction.length > 0) {
+            setUserLevel(data.data.transaction[0].amount); // Correctly accessing user level
           } else {
             setUserLevel('No data available');
           }
-          
+      
         } catch (error) {
           console.error('Error fetching user level:', error);
           setUserLevel('error');
         }
-        
       }
       
       fetchAuditRatio();
@@ -246,9 +246,10 @@ function App() {
       <p id="auditRatioDisplay">
         Audit Ratio: {auditRatio === null ? 'Loading...' : auditRatio === 'error' ? 'Error fetching audit ratio' : auditRatio}
       </p>
-      <p id="UserLevelDisplay">
+      <p id="userLevelDisplay">
         User Level: {userLevel === null ? 'Loading...' : userLevel === 'error' ? 'Error fetching user level' : userLevel}
       </p>
+
       <div id="userSkillsDisplay">
   <h3>User Skills:</h3>
   {userSkills === null ? (
