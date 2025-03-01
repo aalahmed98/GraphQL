@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import RadarChart from "../app/components/RadarChart";
+ // Adjust import path as needed
 
 interface AuditGroup {
   captainLogin: string;
@@ -272,6 +274,10 @@ export default function Page() {
           <li>No failed audits available</li>
         )}
       </ul>
+
+      {/* Added RadarChart component */}
+      <RadarChart />
+
       <button onClick={logout}>Logout</button>
     </div>
   );
