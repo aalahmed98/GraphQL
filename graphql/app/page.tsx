@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import RadarChart from "../app/components/RadarChart";
- // Adjust import path as needed
 
 interface AuditGroup {
   captainLogin: string;
@@ -37,6 +36,30 @@ export default function Page() {
   const [auditData, setAuditData] = useState<AuditData>({ validAudits: [], failedAudits: [] });
   const [loginUsername, setLoginUsername] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
+
+  // Helper function that handles GraphQL requests using the same jwt token
+// Helper function that handles GraphQL requests using the same jwt token
+async function graphqlFetch(query: string) {
+  const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: JSON.stringify({ query }),
+  });
+  const data = await response.json();
+
+  // Check for JWT expiration error
+  if (data.errors && data.errors[0]?.message.includes("JWTExpired")) {
+    alert("Your session has expired. Please log in again.");
+    logout();
+    throw new Error("JWTExpired");
+  }
+  
+  return data;
+}
+
 
   // Login function
   async function login(usernameInput: string, passwordInput: string) {
@@ -79,17 +102,10 @@ export default function Page() {
     setAuditData({ validAudits: [], failedAudits: [] });
   }
 
-  // Fetch audit ratio
+  // Fetch audit ratio using the helper function
   async function fetchAuditRatio() {
     try {
-      const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({
-          query: `{ user { auditRatio totalUp totalDown } }`,
-        }),
-      });
-      const data = await response.json();
+      const data = await graphqlFetch(`{ user { auditRatio totalUp totalDown } }`);
       console.log("Audit Ratio Response:", data);
 
       if (data.data && Array.isArray(data.data.user) && data.data.user.length > 0) {
@@ -103,27 +119,19 @@ export default function Page() {
     }
   }
 
-  // Fetch user skills
+  // Fetch user skills using the helper function
   async function fetchUserSkills() {
     try {
-      const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({
-          query: `{
-            transaction(
-              where: { type: {_like: "%skill%"}, object: {type: {_eq: "project"}} }
-              order_by: [{type: asc}, {createdAt: desc}]
-              distinct_on: type
-            ) {
-              amount
-              type
-            }
-          }`,
-        }),
-      });
-
-      const data = await response.json();
+      const data = await graphqlFetch(`{
+        transaction(
+          where: { type: {_like: "%skill%"}, object: {type: {_eq: "project"}} }
+          order_by: [{type: asc}, {createdAt: desc}]
+          distinct_on: type
+        ) {
+          amount
+          type
+        }
+      }`);
       console.log("User Skills Response:", data);
 
       if (data.data && data.data.transaction) {
@@ -137,24 +145,16 @@ export default function Page() {
     }
   }
 
-  // Fetch user level
+  // Fetch user level using the helper function
   async function fetchUserLevel() {
     try {
-      const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({
-          query: `{
-            transaction(
-              order_by: {amount: desc}
-              limit: 1
-              where: { type: {_eq: "level"}, path: {_like: "/bahrain/bh-module%"} }
-            ) { amount }
-          }`,
-        }),
-      });
-
-      const data = await response.json();
+      const data = await graphqlFetch(`{
+        transaction(
+          order_by: {amount: desc}
+          limit: 1
+          where: { type: {_eq: "level"}, path: {_like: "/bahrain/bh-module%"} }
+        ) { amount }
+      }`);
       console.log("User Level Response:", data);
 
       if (data.data && data.data.transaction.length > 0) {
@@ -168,23 +168,15 @@ export default function Page() {
     }
   }
 
-  // Fetch audit data
+  // Fetch audit data using the helper function
   async function fetchAuditData() {
     try {
-      const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${jwt}` },
-        body: JSON.stringify({
-          query: `{
-            user {
-              validAudits: audits_aggregate(where: {grade: {_gte: 1}}) { nodes { group { captainLogin path } } }
-              failedAudits: audits_aggregate(where: {grade: {_lt: 1}}) { nodes { group { captainLogin path } } }
-            }
-          }`,
-        }),
-      });
-
-      const data = await response.json();
+      const data = await graphqlFetch(`{
+        user {
+          validAudits: audits_aggregate(where: {grade: {_gte: 1}}) { nodes { group { captainLogin path } } }
+          failedAudits: audits_aggregate(where: {grade: {_lt: 1}}) { nodes { group { captainLogin path } } }
+        }
+      }`);
       console.log("Audit Data Response:", data);
 
       if (data.data && Array.isArray(data.data.user) && data.data.user.length > 0) {
@@ -198,7 +190,7 @@ export default function Page() {
       }
     } catch (error) {
       console.error("Error fetching audit data:", error);
-      setAuditData({ validAudits: [] as AuditNode[], failedAudits: [] as AuditNode[] });
+      setAuditData({ validAudits: [], failedAudits: [] });
     }
   }
 
@@ -275,7 +267,6 @@ export default function Page() {
         )}
       </ul>
 
-      {/* Added RadarChart component */}
       <RadarChart />
 
       <button onClick={logout}>Logout</button>
