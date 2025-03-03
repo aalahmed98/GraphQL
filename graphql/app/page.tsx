@@ -230,18 +230,7 @@ async function graphqlFetch(query: string) {
       <h1>Hello, {username}!</h1>
       <p>Audit Ratio: {auditRatio ?? "Loading..."}</p>
       <p>User Level: {userLevel ?? "Loading..."}</p>
-      <h3>User Skills</h3>
-      <ul>
-        {Array.isArray(userSkills) ? (
-          userSkills.map((skill, i) => (
-            <li key={i}>
-              {skill.type}: {skill.amount}
-            </li>
-          ))
-        ) : (
-          <li>{userSkills}</li>
-        )}
-      </ul>
+     
       <h3>Valid Audits</h3>
       <ul>
         {auditData.validAudits && auditData.validAudits.length > 0 ? (
