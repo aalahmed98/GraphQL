@@ -267,7 +267,8 @@ async function graphqlFetch(query: string) {
         )}
       </ul>
 
-      <RadarChart />
+      <RadarChart userSkills={userSkills} />
+
 
       <button onClick={logout}>Logout</button>
     </div>
