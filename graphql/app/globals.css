@@ -43,6 +43,7 @@ body {
 /* Ensuring the container is displayed */
 .container.active {
   display: block;
+  background-color: black;
 }
 
 /* Login Container */

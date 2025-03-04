@@ -233,28 +233,32 @@ async function graphqlFetch(query: string) {
      
       <h3>Valid Audits</h3>
       <ul>
-        {auditData.validAudits && auditData.validAudits.length > 0 ? (
-          auditData.validAudits.map((audit, i) => (
-            <li key={i}>
-              {audit.group.captainLogin} - {audit.group.path}
-            </li>
-          ))
-        ) : (
-          <li>No valid audits available</li>
-        )}
-      </ul>
+
+  {auditData?.validAudits?.length > 0 ? (
+    auditData.validAudits.slice(0, 4).map((audit, i) => (
+      <li key={i}>
+        {audit.group.captainLogin} - {audit.group.path}
+      </li>
+    ))
+  ) : (
+    <li>No valid audits available</li>
+  )}
+
+</ul>
+
       <h3>Failed Audits</h3>
-      <ul>
-        {auditData.failedAudits && auditData.failedAudits.length > 0 ? (
-          auditData.failedAudits.map((audit, i) => (
-            <li key={i}>
-              {audit.group.captainLogin} - {audit.group.path}
-            </li>
-          ))
-        ) : (
-          <li>No failed audits available</li>
-        )}
-      </ul>
+<ul>
+  {auditData?.failedAudits?.length > 0 ? (
+    auditData.failedAudits.slice(0, 4).map((audit, i) => (
+      <li key={i}>
+        {audit.group.captainLogin} - {audit.group.path}
+      </li>
+    ))
+  ) : (
+    <li>No failed audits available</li>
+  )}
+</ul>
+
 
       <RadarChart userSkills={userSkills} />
 
