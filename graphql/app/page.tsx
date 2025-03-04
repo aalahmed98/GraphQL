@@ -101,7 +101,17 @@ async function graphqlFetch(query: string) {
     setUserLevel(null);
     setAuditData({ validAudits: [], failedAudits: [] });
   }
-
+  <ul>
+  {auditData.failedAudits && auditData.failedAudits.length > 0 ? (
+    auditData.failedAudits.map((audit, i) => (
+      <li key={i}>
+        {audit.group.captainLogin} - {audit.group.path}
+      </li>
+    ))
+  ) : (
+    <li>No failed audits available</li>
+  )}
+</ul>
   // Fetch audit ratio using the helper function
   async function fetchAuditRatio() {
     try {
@@ -233,31 +243,31 @@ async function graphqlFetch(query: string) {
      
       <h3>Valid Audits</h3>
       <ul>
-
   {auditData?.validAudits?.length > 0 ? (
     auditData.validAudits.slice(0, 4).map((audit, i) => (
       <li key={i}>
-        {audit.group.captainLogin} - {audit.group.path}
+        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
       </li>
     ))
   ) : (
     <li>No valid audits available</li>
   )}
-
 </ul>
 
+
       <h3>Failed Audits</h3>
-<ul>
+      <ul>
   {auditData?.failedAudits?.length > 0 ? (
     auditData.failedAudits.slice(0, 4).map((audit, i) => (
       <li key={i}>
-        {audit.group.captainLogin} - {audit.group.path}
+        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
       </li>
     ))
   ) : (
     <li>No failed audits available</li>
   )}
 </ul>
+
 
 
       <RadarChart userSkills={userSkills} />
