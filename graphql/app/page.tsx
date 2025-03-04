@@ -2,7 +2,47 @@
 
 import React, { useState, useEffect } from "react";
 import RadarChart from "../app/components/RadarChart";
+import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
+// AuditStatsCard Component - Circular Gauge for Audit Ratio
+const AuditStatsCard = ({ auditRatio }) => {
+  // Ensure auditRatio is a number and limit it to a max of 2 (for visual clarity)
+  const ratioValue = Math.min(Math.max(auditRatio, 0), 2); 
+
+  // Data for the circular chart
+  const data = [{ name: "Ratio", value: ratioValue * 50 }]; // Scale to 100%
+
+  return (
+    <div className="audit-card">
+      <h3>Audits ratio</h3>
+
+      {/* Circular Ratio Display */}
+      <RadialBarChart 
+        width={150} 
+        height={150} 
+        cx="50%" 
+        cy="50%" 
+        innerRadius="80%" 
+        outerRadius="100%" 
+        barSize={10} 
+        data={data} 
+        startAngle={90} 
+        endAngle={-270}
+      >
+        <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+        <RadialBar background dataKey="value" fill="#00ff99" />
+      </RadialBarChart>
+
+      {/* Display the numeric ratio */}
+      <div className="audit-ratio">
+        <span className="ratio-number">{auditRatio}</span>
+        <span className="status">Almost perfect!</span>
+      </div>
+    </div>
+  );
+};
+
+// Interfaces
 interface AuditGroup {
   captainLogin: string;
   path: string;
@@ -23,45 +63,41 @@ interface UserSkill {
 }
 
 export default function Page() {
-  // Retrieve any saved token and username from localStorage
   const [jwt, setJwt] = useState<string>(
     typeof window !== "undefined" ? localStorage.getItem("jwt") || "" : ""
   );
   const [username, setUsername] = useState<string>(
     typeof window !== "undefined" ? localStorage.getItem("username") || "" : ""
   );
-  const [auditRatio, setAuditRatio] = useState<number | string | null>(null);
+  const [auditStats, setAuditStats] = useState<{ auditRatio: number | string | null } | null>(null);
   const [userSkills, setUserSkills] = useState<UserSkill[] | string | null>(null);
   const [userLevel, setUserLevel] = useState<number | string | null>(null);
   const [auditData, setAuditData] = useState<AuditData>({ validAudits: [], failedAudits: [] });
   const [loginUsername, setLoginUsername] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
 
-  // Helper function that handles GraphQL requests using the same jwt token
-// Helper function that handles GraphQL requests using the same jwt token
-async function graphqlFetch(query: string) {
-  const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify({ query }),
-  });
-  const data = await response.json();
+  // GraphQL Fetch Helper
+  async function graphqlFetch(query: string) {
+    const response = await fetch("https://learn.reboot01.com/api/graphql-engine/v1/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwt}`,
+      },
+      body: JSON.stringify({ query }),
+    });
+    const data = await response.json();
 
-  // Check for JWT expiration error
-  if (data.errors && data.errors[0]?.message.includes("JWTExpired")) {
-    alert("Your session has expired. Please log in again.");
-    logout();
-    throw new Error("JWTExpired");
+    if (data.errors && data.errors[0]?.message.includes("JWTExpired")) {
+      alert("Your session has expired. Please log in again.");
+      logout();
+      throw new Error("JWTExpired");
+    }
+
+    return data;
   }
-  
-  return data;
-}
 
-
-  // Login function
+  // Login Function
   async function login(usernameInput: string, passwordInput: string) {
     try {
       const credentials = btoa(`${usernameInput}:${passwordInput}`);
@@ -73,7 +109,6 @@ async function graphqlFetch(query: string) {
         },
       });
       const data = await response.json();
-      console.log("Login response:", data);
 
       if (response.ok) {
         alert("Login successful!");
@@ -90,95 +125,38 @@ async function graphqlFetch(query: string) {
     }
   }
 
-  // Logout function
+  // Logout Function
   function logout() {
     localStorage.removeItem("jwt");
     localStorage.removeItem("username");
     setJwt("");
     setUsername("");
-    setAuditRatio(null);
+    setAuditStats(null);
     setUserSkills(null);
     setUserLevel(null);
     setAuditData({ validAudits: [], failedAudits: [] });
   }
-  <ul>
-  {auditData.failedAudits && auditData.failedAudits.length > 0 ? (
-    auditData.failedAudits.map((audit, i) => (
-      <li key={i}>
-        {audit.group.captainLogin} - {audit.group.path}
-      </li>
-    ))
-  ) : (
-    <li>No failed audits available</li>
-  )}
-</ul>
-  // Fetch audit ratio using the helper function
-  async function fetchAuditRatio() {
-    try {
-      const data = await graphqlFetch(`{ user { auditRatio totalUp totalDown } }`);
-      console.log("Audit Ratio Response:", data);
 
-      if (data.data && Array.isArray(data.data.user) && data.data.user.length > 0) {
-        setAuditRatio(data.data.user[0].auditRatio);
+  // Fetch Audit Stats (Ratio)
+  async function fetchAuditStats() {
+    try {
+      const data = await graphqlFetch(`{ user { auditRatio } }`);
+
+      if (data.data?.user?.length > 0) {
+        const user = data.data.user[0];
+        setAuditStats({
+          auditRatio: user.auditRatio ? parseFloat(user.auditRatio.toFixed(1)) : "No data available",
+        });
       } else {
-        setAuditRatio("No data available");
+        setAuditStats({ auditRatio: "No data available" });
       }
     } catch (error) {
-      console.error("Error fetching audit ratio:", error);
-      setAuditRatio("error");
+      console.error("Error fetching audit stats:", error);
+      setAuditStats({ auditRatio: "error" });
     }
   }
 
-  // Fetch user skills using the helper function
-  async function fetchUserSkills() {
-    try {
-      const data = await graphqlFetch(`{
-        transaction(
-          where: { type: {_like: "%skill%"}, object: {type: {_eq: "project"}} }
-          order_by: [{type: asc}, {createdAt: desc}]
-          distinct_on: type
-        ) {
-          amount
-          type
-        }
-      }`);
-      console.log("User Skills Response:", data);
-
-      if (data.data && data.data.transaction) {
-        setUserSkills(data.data.transaction);
-      } else {
-        setUserSkills("No data available");
-      }
-    } catch (error) {
-      console.error("Error fetching user skills:", error);
-      setUserSkills("error");
-    }
-  }
-
-  // Fetch user level using the helper function
-  async function fetchUserLevel() {
-    try {
-      const data = await graphqlFetch(`{
-        transaction(
-          order_by: {amount: desc}
-          limit: 1
-          where: { type: {_eq: "level"}, path: {_like: "/bahrain/bh-module%"} }
-        ) { amount }
-      }`);
-      console.log("User Level Response:", data);
-
-      if (data.data && data.data.transaction.length > 0) {
-        setUserLevel(data.data.transaction[0].amount);
-      } else {
-        setUserLevel("No data available");
-      }
-    } catch (error) {
-      console.error("Error fetching user level:", error);
-      setUserLevel("error");
-    }
-  }
-
-  // Fetch audit data using the helper function
+  // Fetch Audit Data (Valid and Failed Audits)
   async function fetchAuditData() {
     try {
       const data = await graphqlFetch(`{
@@ -187,9 +165,8 @@ async function graphqlFetch(query: string) {
           failedAudits: audits_aggregate(where: {grade: {_lt: 1}}) { nodes { group { captainLogin path } } }
         }
       }`);
-      console.log("Audit Data Response:", data);
 
-      if (data.data && Array.isArray(data.data.user) && data.data.user.length > 0) {
+      if (data.data?.user?.length > 0) {
         const user = data.data.user[0];
         setAuditData({
           validAudits: user.validAudits.nodes,
@@ -206,9 +183,7 @@ async function graphqlFetch(query: string) {
 
   useEffect(() => {
     if (jwt) {
-      fetchAuditRatio();
-      fetchUserSkills();
-      fetchUserLevel();
+      fetchAuditStats();
       fetchAuditData();
     }
   }, [jwt]);
@@ -217,19 +192,8 @@ async function graphqlFetch(query: string) {
     return (
       <div id="loginContainer" className="container active">
         <h2>Login</h2>
-        <input
-          id="username"
-          placeholder="Username"
-          value={loginUsername}
-          onChange={(e) => setLoginUsername(e.target.value)}
-        />
-        <input
-          id="password"
-          type="password"
-          placeholder="Password"
-          value={loginPassword}
-          onChange={(e) => setLoginPassword(e.target.value)}
-        />
+        <input placeholder="Username" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} />
+        <input type="password" placeholder="Password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
         <button onClick={() => login(loginUsername, loginPassword)}>Login</button>
       </div>
     );
@@ -238,41 +202,25 @@ async function graphqlFetch(query: string) {
   return (
     <div id="profileContainer" className="container active">
       <h1>Hello, {username}!</h1>
-      <p>Audit Ratio: {auditRatio ?? "Loading..."}</p>
-      <p>User Level: {userLevel ?? "Loading..."}</p>
-     
+
+      <h3>Audit Performance</h3>
+      {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
+
       <h3>Valid Audits</h3>
       <ul>
-  {auditData?.validAudits?.length > 0 ? (
-    auditData.validAudits.slice(0, 4).map((audit, i) => (
-      <li key={i}>
-        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
-      </li>
-    ))
-  ) : (
-    <li>No valid audits available</li>
-  )}
-</ul>
-
+        {auditData.validAudits.slice(0, 4).map((audit, i) => (
+          <li key={i}>{audit.group.captainLogin} - {audit.group.path.split("/").pop()}</li>
+        ))}
+      </ul>
 
       <h3>Failed Audits</h3>
       <ul>
-  {auditData?.failedAudits?.length > 0 ? (
-    auditData.failedAudits.slice(0, 4).map((audit, i) => (
-      <li key={i}>
-        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
-      </li>
-    ))
-  ) : (
-    <li>No failed audits available</li>
-  )}
-</ul>
-
-
+        {auditData.failedAudits.slice(0, 4).map((audit, i) => (
+          <li key={i}>{audit.group.captainLogin} - {audit.group.path.split("/").pop()}</li>
+        ))}
+      </ul>
 
       <RadarChart userSkills={userSkills} />
-
-
       <button onClick={logout}>Logout</button>
     </div>
   );
