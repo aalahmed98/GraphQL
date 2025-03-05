@@ -212,17 +212,27 @@ export default function Page() {
     try {
       const data = await graphqlFetch(`{
         user {
-          validAudits: audits_aggregate(where: {grade: {_gte: 1}}) { nodes { group { captainLogin path } } }
-          failedAudits: audits_aggregate(where: {grade: {_lt: 1}}) { nodes { group { captainLogin path } } }
+          validAudits: audits(where: { grade: { _gte: 1 } }) {
+            group { captainLogin path }
+          }
+          failedAudits: audits(where: { grade: { _lt: 1 } }) {
+            group { captainLogin path }
+          }
         }
       }`);
-
+  
+      console.log("Audit Data Response:", data); // Debugging log
+  
       if (data.data?.user?.length > 0) {
         const user = data.data.user[0];
+  
         setAuditData({
-          validAudits: user.validAudits.nodes,
-          failedAudits: user.failedAudits.nodes,
+          validAudits: user.validAudits,
+          failedAudits: user.failedAudits,
         });
+  
+        console.log("Valid Audits:", user.validAudits);
+        console.log("Failed Audits:", user.failedAudits);
       } else {
         setAuditData({ validAudits: [], failedAudits: [] });
       }
@@ -231,6 +241,7 @@ export default function Page() {
       setAuditData({ validAudits: [], failedAudits: [] });
     }
   }
+  
 
   useEffect(() => {
     if (jwt) {
@@ -258,21 +269,57 @@ export default function Page() {
       <h3>Audit Performance</h3>
       {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
 
-      <h3>Skill Radar</h3>
+      <h3>Valid Audits</h3>
+<ul className="audit-list">
+  {auditData?.validAudits?.length > 0 ? (
+    auditData.validAudits.slice(0, 4).map((audit, i) => (
+      <li key={i} className="audit-item">
+        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
+      </li>
+    ))
+  ) : (
+    <li className="audit-item">No valid audits available</li>
+  )}
+</ul>
 
-{/* Technical Skills Graph */}
-{userSkills?.technicalSkills?.length > 0 ? (
-  <RadarChart title="Technical Skills" skills={userSkills.technicalSkills} />
-) : (
-  <p className="text-center text-white">Loading technical skills...</p>
-)}
+<h3>Failed Audits</h3>
+<ul className="audit-list">
+  {auditData?.failedAudits?.length > 0 ? (
+    auditData.failedAudits.slice(0, 4).map((audit, i) => (
+      <li key={i} className="audit-item text-red-500">
+        {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
+      </li>
+    ))
+  ) : (
+    <li className="audit-item text-red-500">No failed audits available</li>
+  )}
+</ul>
 
-{/* Technologies Graph */}
-{userSkills?.technologies?.length > 0 ? (
-  <RadarChart title="Technologies" skills={userSkills.technologies} />
-) : (
-  <p className="text-center text-white">Loading technologies...</p>
-)}
+      <h3 className="text-center text-white text-2xl font-bold mb-4">Skill Radar</h3>
+
+{/* Radar Chart Container - Side by Side */}
+<div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
+
+  {/* Technical Skills Graph */}
+  {userSkills?.technicalSkills?.length > 0 ? (
+    <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+      <RadarChart title="Technical Skills" skills={userSkills.technicalSkills} />
+    </div>
+  ) : (
+    <p className="text-center text-white w-full">Loading technical skills...</p>
+  )}
+
+  {/* Technologies Graph */}
+  {userSkills?.technologies?.length > 0 ? (
+    <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+      <RadarChart title="Technologies" skills={userSkills.technologies} />
+    </div>
+  ) : (
+    <p className="text-center text-white w-full">Loading technologies...</p>
+  )}
+
+</div>
+
 
 
 

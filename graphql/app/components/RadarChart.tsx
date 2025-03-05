@@ -12,16 +12,20 @@ const RadarChart = ({ title, skills }) => {
   const skillValues = skills.map(skill => skill.amount);
 
   const chartOptions = {
-    chart: { type: "radar", toolbar: { show: false } },
+    chart: {
+      type: "radar",
+      toolbar: { show: false },
+      animations: { enabled: true },
+    },
     xaxis: {
       categories: skillLabels,
       labels: { style: { colors: "#fff", fontSize: "14px" } },
     },
     yaxis: { show: false },
     stroke: { width: 2, colors: ["#8b5cf6"] },
-    fill: { opacity: 0.2 },
+    fill: { opacity: 0.3 },
     markers: {
-      size: 4,
+      size: 5,
       colors: ["#8b5cf6"],
       strokeColors: "#fff",
       strokeWidth: 2,
@@ -33,11 +37,10 @@ const RadarChart = ({ title, skills }) => {
   const chartSeries = [{ name: title, data: skillValues }];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold mb-8">{title}</h2>
-      <div className="w-full md:w-1/2 lg:w-1/3 p-4 bg-gray-800 rounded-xl">
-        <ApexChart options={chartOptions} series={chartSeries} type="radar" height={350} />
-        <p className="text-center mt-2">{title}</p>
+    <div className="flex flex-col items-center justify-center w-full">
+      <h2 className="text-white text-lg font-bold mb-4">{title}</h2>
+      <div className="w-[500px] h-[550px] bg-gray-800 p-4 rounded-xl">
+        <ApexChart options={chartOptions} series={chartSeries} type="radar" height={520} />
       </div>
     </div>
   );

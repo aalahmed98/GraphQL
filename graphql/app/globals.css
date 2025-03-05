@@ -32,7 +32,7 @@ body {
 
 /* Container styles */
 .container {
-  max-width: 500px;
+
   margin: 50px auto;
   background-color: #fff;
   padding: 30px;
@@ -171,4 +171,17 @@ ul li:last-child {
 .status {
   font-size: 1rem;
   color: #00ff99;
+}
+
+.audit-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.audit-item {
+  background: #222;
+  color: white;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
 }
