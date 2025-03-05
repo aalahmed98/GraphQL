@@ -6,17 +6,15 @@ import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
 // AuditStatsCard Component - Circular Gauge for Audit Ratio
 const AuditStatsCard = ({ auditRatio }) => {
-  // Ensure auditRatio is a number and limit it to a max of 2 (for visual clarity)
   const ratioValue = Math.min(Math.max(auditRatio, 0), 2); 
 
-  // Data for the circular chart
-  const data = [{ name: "Ratio", value: ratioValue * 50 }]; // Scale to 100%
+  // Data for circular chart
+  const data = [{ name: "Ratio", value: ratioValue * 50 }];
 
   return (
     <div className="audit-card">
       <h3>Audits ratio</h3>
 
-      {/* Circular Ratio Display */}
       <RadialBarChart 
         width={150} 
         height={150} 
@@ -33,10 +31,8 @@ const AuditStatsCard = ({ auditRatio }) => {
         <RadialBar background dataKey="value" fill="#00ff99" />
       </RadialBarChart>
 
-      {/* Display the numeric ratio */}
       <div className="audit-ratio">
         <span className="ratio-number">{auditRatio}</span>
-        <span className="status">Almost perfect!</span>
       </div>
     </div>
   );
@@ -156,6 +152,61 @@ export default function Page() {
     }
   }
 
+  // Fetch User Skills
+  async function fetchUserSkills() {
+    try {
+      const data = await graphqlFetch(`{
+        transaction(
+          where: { type: {_like: "%skill%"}, object: {type: {_eq: "project"}} }
+          order_by: [{type: asc}, {createdAt: desc}]
+          distinct_on: type
+        ) {
+          amount
+          type
+        }
+      }`);
+  
+      console.log("Fetched Skills Data:", data); // Debugging log
+  
+      if (data.data?.transaction?.length > 0) {
+        const skills = data.data.transaction;
+  
+        // Define exact skill mapping
+        const skillMapping = {
+          technical: ["Algo", "Sys-Admin", "Front-End", "Back-End", "Stats", "Game", "AI", "TCP/IP", "Cybersecurity"],
+          technology: ["Go", "JS", "SQL", "HTML", "CSS", "Unix", "Docker", "C", "Shell", "PHP", "Python", "Rust", "Ruby", "Git", "GraphQL"],
+        };
+  
+        const technicalSkills = [];
+        const technologies = [];
+  
+        skills.forEach(skill => {
+          const skillName = skill.type.toLowerCase();
+  
+          if (skillMapping.technical.some(ts => skillName.includes(ts.toLowerCase()))) {
+            technicalSkills.push(skill);
+          } else if (skillMapping.technology.some(tech => skillName.includes(tech.toLowerCase()))) {
+            technologies.push(skill);
+          } else {
+            console.warn(`Uncategorized Skill: ${skill.type}`); // Debugging log
+          }
+        });
+  
+        console.log("Processed Technical Skills:", technicalSkills);
+        console.log("Processed Technologies:", technologies);
+  
+        setUserSkills({ technicalSkills, technologies });
+      } else {
+        setUserSkills({ technicalSkills: [], technologies: [] });
+      }
+    } catch (error) {
+      console.error("Error fetching user skills:", error);
+      setUserSkills({ technicalSkills: [], technologies: [] });
+    }
+  }
+  
+  
+  
   // Fetch Audit Data (Valid and Failed Audits)
   async function fetchAuditData() {
     try {
@@ -184,6 +235,7 @@ export default function Page() {
   useEffect(() => {
     if (jwt) {
       fetchAuditStats();
+      fetchUserSkills();
       fetchAuditData();
     }
   }, [jwt]);
@@ -206,21 +258,24 @@ export default function Page() {
       <h3>Audit Performance</h3>
       {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
 
-      <h3>Valid Audits</h3>
-      <ul>
-        {auditData.validAudits.slice(0, 4).map((audit, i) => (
-          <li key={i}>{audit.group.captainLogin} - {audit.group.path.split("/").pop()}</li>
-        ))}
-      </ul>
+      <h3>Skill Radar</h3>
 
-      <h3>Failed Audits</h3>
-      <ul>
-        {auditData.failedAudits.slice(0, 4).map((audit, i) => (
-          <li key={i}>{audit.group.captainLogin} - {audit.group.path.split("/").pop()}</li>
-        ))}
-      </ul>
+{/* Technical Skills Graph */}
+{userSkills?.technicalSkills?.length > 0 ? (
+  <RadarChart title="Technical Skills" skills={userSkills.technicalSkills} />
+) : (
+  <p className="text-center text-white">Loading technical skills...</p>
+)}
 
-      <RadarChart userSkills={userSkills} />
+{/* Technologies Graph */}
+{userSkills?.technologies?.length > 0 ? (
+  <RadarChart title="Technologies" skills={userSkills.technologies} />
+) : (
+  <p className="text-center text-white">Loading technologies...</p>
+)}
+
+
+
       <button onClick={logout}>Logout</button>
     </div>
   );
