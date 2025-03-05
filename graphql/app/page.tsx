@@ -173,12 +173,12 @@ export default function Page() {
   
         // Define exact skill mapping
         const skillMapping = {
-          technical: ["Algo", "Sys-Admin", "Front-End", "Back-End", "Stats", "Game", "AI", "TCP/IP", "Cybersecurity"],
-          technology: ["Go", "JS", "SQL", "HTML", "CSS", "Unix", "Docker", "C", "Shell", "PHP", "Python", "Rust", "Ruby", "Git", "GraphQL"],
+          technical: ["Algo", "Sys-Admin", "Front-End", "Back-End", "Stats", "Game", "AI", "TCP/IP", "Cybersecurity", "Elementary Programming","Elementary algo", "Blockchain", "Mobile"],
+          technology: ["Go", "JS", "SQL", "HTML", "CSS", "Unix", "Docker", "C", "Shell", "PHP", "Python", "Rust", "Ruby", "Git", "GraphQL", "c++", "GraphQL", "Ruby on Rails", "Larva", "Django", "Electron"],
         };
   
-        const technicalSkills = [];
-        const technologies = [];
+        let technicalSkills: UserSkill[] = [];
+        let technologies: UserSkill[] = [];
   
         skills.forEach(skill => {
           const skillName = skill.type.toLowerCase();
@@ -192,8 +192,12 @@ export default function Page() {
           }
         });
   
-        console.log("Processed Technical Skills:", technicalSkills);
-        console.log("Processed Technologies:", technologies);
+        // Sort by amount (highest first) and take the top 6
+        technicalSkills = technicalSkills.sort((a, b) => b.amount - a.amount).slice(0, 6);
+        technologies = technologies.sort((a, b) => b.amount - a.amount).slice(0, 6);
+  
+        console.log("Top Technical Skills:", technicalSkills);
+        console.log("Top Technologies:", technologies);
   
         setUserSkills({ technicalSkills, technologies });
       } else {
@@ -204,6 +208,7 @@ export default function Page() {
       setUserSkills({ technicalSkills: [], technologies: [] });
     }
   }
+  
   
   
   
@@ -265,9 +270,11 @@ export default function Page() {
   return (
     <div id="profileContainer" className="container active">
       <h1>Hello, {username}!</h1>
-
+      <div>
       <h3>Audit Performance</h3>
       {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
+      
+      </div>
 
       <h3>Valid Audits</h3>
 <ul className="audit-list">
