@@ -271,28 +271,29 @@ async function fetchUserInfo() {
     }
   }
   
-// Fetch User XP
+
+// Fetch User XP as cumulative total
 async function fetchUserXp() {
   try {
     const data = await graphqlFetch(`
       {
         transaction(
           where: { type: { _eq: "xp" } }
-          order_by: { createdAt: desc }
-          limit: 7
+          order_by: { createdAt: asc }
         ) {
           amount
+          createdAt
         }
       }
     `);
 
     if (data.data?.transaction?.length > 0) {
-      // Ensure the API response is mapped correctly
-      setUserXp(
-        data.data.transaction.map((entry) => ({
-          xp: Number(entry.amount), // Ensure XP values are numbers
-        }))
-      );
+      let cumulative = 0;
+      const cumulativeData = data.data.transaction.map((entry) => {
+        cumulative += Number(entry.amount);
+        return { xp: cumulative };
+      });
+      setUserXp(cumulativeData);
     } else {
       setUserXp([]);
     }
@@ -301,6 +302,7 @@ async function fetchUserXp() {
     setUserXp([]);
   }
 }
+
 
 
   // Fetch Audit Data (Valid and Failed Audits)

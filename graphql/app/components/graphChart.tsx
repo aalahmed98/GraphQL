@@ -25,7 +25,7 @@ const XPProgressChart = ({ xpData }) => {
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={formattedData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="id" stroke="#ccc" /> {/* Using id for proper indexing */}
+   
           <YAxis stroke="#ccc" />
           <Tooltip />
           <Line type="monotone" dataKey="xp" stroke="#00ff99" strokeWidth={2} />
