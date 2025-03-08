@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
+//A const to represent the two skills charts
 const RadarChart = ({ title, skills }) => {
   if (!skills || skills.length === 0) {
     return <p className="text-center text-white">No skill data available for {title}</p>;
@@ -45,5 +46,6 @@ const RadarChart = ({ title, skills }) => {
     </div>
   );
 };
+
 
 export default RadarChart;

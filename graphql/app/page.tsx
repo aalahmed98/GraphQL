@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import RadarChart from "../app/components/RadarChart";
+import XPProgressChart from "../app/components/graphChart";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
 // AuditStatsCard Component - Circular Gauge for Audit Ratio
@@ -38,6 +39,7 @@ const AuditStatsCard = ({ auditRatio }) => {
   );
 };
 
+
 // Interfaces
 interface AuditGroup {
   captainLogin: string;
@@ -59,18 +61,26 @@ interface UserSkill {
 }
 
 export default function Page() {
-  const [jwt, setJwt] = useState<string>(
-    typeof window !== "undefined" ? localStorage.getItem("jwt") || "" : ""
-  );
-  const [username, setUsername] = useState<string>(
-    typeof window !== "undefined" ? localStorage.getItem("username") || "" : ""
-  );
+  const [jwt, setJwt] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setJwt(localStorage.getItem("jwt") || "");
+      setUsername(localStorage.getItem("username") || "");
+    }
+  }, []);
+  
   const [auditStats, setAuditStats] = useState<{ auditRatio: number | string | null } | null>(null);
   const [userSkills, setUserSkills] = useState<UserSkill[] | string | null>(null);
   const [userLevel, setUserLevel] = useState<number | string | null>(null);
   const [auditData, setAuditData] = useState<AuditData>({ validAudits: [], failedAudits: [] });
   const [loginUsername, setLoginUsername] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
+  const [userInfo, setUserInfo] = useState<{ firstName: string; lastName: string; email: string; campus: string } | null>(null);
+  const [userXp, setUserXp] = useState<number[] | null>(null);
+
+
 
   // GraphQL Fetch Helper
   async function graphqlFetch(query: string) {
@@ -93,6 +103,36 @@ export default function Page() {
     return data;
   }
 
+// Fetch User Information
+async function fetchUserInfo() {
+  try {
+    const data = await graphqlFetch(`{
+      user {
+        firstName
+        lastName
+        email
+        campus
+      }
+    }`);
+
+    if (data.data?.user?.length > 0) {
+      const user = data.data.user[0];
+
+      setUserInfo({
+        firstName: user.firstName || "N/A",
+        lastName: user.lastName || "N/A",
+        email: user.email || "N/A",
+        campus: user.campus || "N/A",
+      });
+    } else {
+      console.warn("No user data available");
+      setUserInfo(null);
+    }
+  } catch (error) {
+    console.error("Error fetching user info:", error);
+    setUserInfo(null);
+  }
+}
   // Login Function
   async function login(usernameInput: string, passwordInput: string) {
     try {
@@ -157,8 +197,8 @@ export default function Page() {
     try {
       const data = await graphqlFetch(`{
         transaction(
-          where: { type: {_like: "%skill%"}, object: {type: {_eq: "project"}} }
-          order_by: [{type: asc}, {createdAt: desc}]
+          where: { type: { _like: "%skill%" }, object: { type: { _eq: "project" } } }
+          order_by: [{ type: asc }, { createdAt: desc }]
           distinct_on: type
         ) {
           amount
@@ -166,33 +206,54 @@ export default function Page() {
         }
       }`);
   
-      console.log("Fetched Skills Data:", data); // Debugging log
+      console.log("Raw Skills Data from API:", data.data?.transaction); // Check if algo is actually returned
   
       if (data.data?.transaction?.length > 0) {
-        const skills = data.data.transaction;
+        const skills = data.data.transaction.map(skill => ({
+          type: skill.type.toLowerCase(), // Normalize case
+          amount: skill.amount || 0, // Ensure zero values are handled properly
+        }));
   
-        // Define exact skill mapping
+        console.log("Processed Skills Before Categorization:", skills);
+  
         const skillMapping = {
-          technical: ["Algo", "Sys-Admin", "Front-End", "Back-End", "Stats", "Game", "AI", "TCP/IP", "Cybersecurity", "Elementary Programming","Elementary algo", "Blockchain", "Mobile"],
-          technology: ["Go", "JS", "SQL", "HTML", "CSS", "Unix", "Docker", "C", "Shell", "PHP", "Python", "Rust", "Ruby", "Git", "GraphQL", "c++", "GraphQL", "Ruby on Rails", "Larva", "Django", "Electron"],
+          technical: [
+            "algo", "sys-admin", "front-end", "back-end", "stats", "game_skill", 
+            "ai", "tcp/ip", "cybersecurity", "elementary programming",
+            "elementary algo", "blockchain", "mobile"
+          ],
+          technology: [
+            "go", "js", "sql", "html", "css", "unix", "docker", "c", "shell",
+            "php", "python", "rust", "ruby", "git", "graphql", "c++",
+            "ruby on rails", "laravel", "django", "electron"
+          ],
         };
   
         let technicalSkills: UserSkill[] = [];
         let technologies: UserSkill[] = [];
   
         skills.forEach(skill => {
-          const skillName = skill.type.toLowerCase();
-  
-          if (skillMapping.technical.some(ts => skillName.includes(ts.toLowerCase()))) {
+          if (skillMapping.technical.some(ts => skill.type.includes(ts))) {
             technicalSkills.push(skill);
-          } else if (skillMapping.technology.some(tech => skillName.includes(tech.toLowerCase()))) {
+          } else if (skillMapping.technology.some(tech => skill.type.includes(tech))) {
             technologies.push(skill);
           } else {
-            console.warn(`Uncategorized Skill: ${skill.type}`); // Debugging log
+            console.warn(`⚠️ Unrecognized Skill: ${skill.type}`);
           }
         });
   
-        // Sort by amount (highest first) and take the top 6
+        console.log("Technical Skills Before Sorting:", technicalSkills);
+        console.log("Technologies Before Sorting:", technologies);
+  
+        // Ensure algo and game_skill are correctly processed
+        const algoSkill = technicalSkills.find(skill => skill.type.includes("algo"));
+        if (algoSkill) {
+          console.log("✅ Algo Skill Detected:", algoSkill);
+        } else {
+          console.warn("❌ Algo Skill Not Found in Technical Skills");
+        }
+  
+        // Sort skills and limit to top 6
         technicalSkills = technicalSkills.sort((a, b) => b.amount - a.amount).slice(0, 6);
         technologies = technologies.sort((a, b) => b.amount - a.amount).slice(0, 6);
   
@@ -201,6 +262,7 @@ export default function Page() {
   
         setUserSkills({ technicalSkills, technologies });
       } else {
+        console.warn("No skills returned from API.");
         setUserSkills({ technicalSkills: [], technologies: [] });
       }
     } catch (error) {
@@ -209,9 +271,38 @@ export default function Page() {
     }
   }
   
-  
-  
-  
+// Fetch User XP
+async function fetchUserXp() {
+  try {
+    const data = await graphqlFetch(`
+      {
+        transaction(
+          where: { type: { _eq: "xp" } }
+          order_by: { createdAt: desc }
+          limit: 7
+        ) {
+          amount
+        }
+      }
+    `);
+
+    if (data.data?.transaction?.length > 0) {
+      // Ensure the API response is mapped correctly
+      setUserXp(
+        data.data.transaction.map((entry) => ({
+          xp: Number(entry.amount), // Ensure XP values are numbers
+        }))
+      );
+    } else {
+      setUserXp([]);
+    }
+  } catch (error) {
+    console.error("Error fetching user XP:", error);
+    setUserXp([]);
+  }
+}
+
+
   // Fetch Audit Data (Valid and Failed Audits)
   async function fetchAuditData() {
     try {
@@ -253,6 +344,8 @@ export default function Page() {
       fetchAuditStats();
       fetchUserSkills();
       fetchAuditData();
+      fetchUserInfo();
+      fetchUserXp(); 
     }
   }, [jwt]);
 
@@ -271,10 +364,39 @@ export default function Page() {
     <div id="profileContainer" className="container active">
       <h1>Hello, {username}!</h1>
       <div>
-      <h3>Audit Performance</h3>
-      {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
-      
+      <div className="flex flex-wrap justify-between items-center">
+  {/* Left Section - User Info */}
+  <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+    <h3 className="text-lg font-semibold text-primary">User Information</h3>
+    {userInfo ? (
+      <ul className="mt-2 text-muted-foreground">
+        <li><strong>Name:</strong> {userInfo.firstName} {userInfo.lastName}</li>
+        <li><strong>Email:</strong> {userInfo.email}</li>
+        <li><strong>Campus:</strong> {userInfo.campus}</li>
+      </ul>
+    ) : (
+      <p>Loading user info...</p>
+    )}
+  </div>
+
+  {/* Right Section - Audit Ratio */}
+  <div className="w-full md:w-1/2 flex justify-center">
+    {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
+  </div>
+</div>
+
       </div>
+
+      {/* User XP Display */}
+<div className="bg-card rounded-lg shadow-md p-4 mt-4">
+  <h3 className="text-lg font-semibold text-primary">User XP</h3>
+  <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+  {Array.isArray(userXp) && userXp.length > 0 ? userXp[0].xp : "Loading..."}
+</p>
+
+
+</div>
+
 
       <h3>Valid Audits</h3>
 <ul className="audit-list">
@@ -301,6 +423,14 @@ export default function Page() {
     <li className="audit-item text-red-500">No failed audits available</li>
   )}
 </ul>
+
+{userXp !== null ? (
+  <div className="mt-6">
+    <XPProgressChart xpData={userXp} />
+  </div>
+) : (
+  <p>Loading XP Data...</p>
+)}
 
       <h3 className="text-center text-white text-2xl font-bold mb-4">Skill Radar</h3>
 
