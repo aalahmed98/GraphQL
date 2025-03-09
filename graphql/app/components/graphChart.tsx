@@ -1,12 +1,20 @@
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const XPProgressChart = ({ xpData }) => {
-  if (!xpData || !Array.isArray(xpData) || xpData.length === 0) {
+  if (!xpData || xpData.length === 0) {
     return <p className="text-center text-white">No XP data available</p>;
   }
 
-  // Format xpData for Recharts
+  // Format your data for Recharts
   const formattedData = xpData.map((entry, index) => ({
     id: index + 1,
     xp: Number(entry.xp),
@@ -16,30 +24,38 @@ const XPProgressChart = ({ xpData }) => {
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold text-gray-900 dark:text-white">XP Progress</h3>
-        {/* SVG Icon for XP */}
-        <svg className="w-6 h-6 text-green-500 dark:text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={formattedData}>
+        <AreaChart data={formattedData}>
+          {/* Define a gradient for the fill under the line */}
+          <defs>
+            <linearGradient id="colorXp" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#00ff99" stopOpacity={0.8} />
+              <stop offset="95%" stopColor="#00ff99" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+
           <CartesianGrid strokeDasharray="3 3" />
-   
+          {/* Hide X-axis labels; remove `hide` if you want them visible */}
+          <XAxis hide stroke="#ccc" />
           <YAxis stroke="#ccc" />
           <Tooltip />
-          <Line type="monotone" dataKey="xp" stroke="#00ff99" strokeWidth={2} />
-        </LineChart>
-      </ResponsiveContainer>
 
-      {/* Additional SVG for Display */}
-      <div className="flex justify-center mt-4">
-        <svg className="w-10 h-10 text-blue-500 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-      </div>
+          {/* Smooth area line with no dots */}
+          <Area
+            type="monotone"
+            dataKey="xp"
+            stroke="#00ff99"
+            fill="url(#colorXp)"
+            dot={false}       
+            activeDot={false} 
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   );
 };
 
 export default XPProgressChart;
+

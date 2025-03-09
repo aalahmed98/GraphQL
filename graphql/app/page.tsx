@@ -5,40 +5,82 @@ import RadarChart from "../app/components/RadarChart";
 import XPProgressChart from "../app/components/graphChart";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
-// AuditStatsCard Component - Circular Gauge for Audit Ratio
-const AuditStatsCard = ({ auditRatio }) => {
-  const ratioValue = Math.min(Math.max(auditRatio, 0), 2); 
 
-  // Data for circular chart
+// AuditStatsCard Component - Circular Gauge for Audit Ratio
+
+const AuditStatsCard = ({ auditRatio, totalUp, totalDown }) => {
+  // Clamp auditRatio between 0 and 2
+  const ratioValue = Math.min(Math.max(auditRatio, 0), 2);
+
+  // Data for the circular gauge
   const data = [{ name: "Ratio", value: ratioValue * 50 }];
 
+  // Convert from KB to MB by dividing by 1000
+  const totalUpMB = totalUp ? (Number(totalUp) / 1000).toFixed(2) : "0.00";
+  const totalDownMB = totalDown ? (Number(totalDown) / 1000).toFixed(2) : "0.00";
+
+  // Use the raw KB values for the bar widths
+  const maxValue = Math.max(Number(totalUp), Number(totalDown), 1);
+
   return (
-    <div className="audit-card">
-      <h3>Audits ratio</h3>
+    <div className="audit-card flex items-center p-4">
+      {/* Left: Circular gauge with ratio in center */}
+      <div className="relative">
+        <RadialBarChart
+          width={150}
+          height={150}
+          cx="50%"
+          cy="50%"
+          innerRadius="80%"
+          outerRadius="100%"
+          barSize={10}
+          data={data}
+          startAngle={90}
+          endAngle={-270}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
+          <RadialBar dataKey="value" fill="#00ff99" background dot={false} activeDot={false} />
+        </RadialBarChart>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="ratio-number text-white font-bold">
+            {auditRatio}
+          </span>
+        </div>
+      </div>
 
-      <RadialBarChart 
-        width={150} 
-        height={150} 
-        cx="50%" 
-        cy="50%" 
-        innerRadius="80%" 
-        outerRadius="100%" 
-        barSize={10} 
-        data={data} 
-        startAngle={90} 
-        endAngle={-270}
-      >
-        <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-        <RadialBar background dataKey="value" fill="#00ff99" />
-      </RadialBarChart>
+      {/* Right: Sent & Received Bars */}
+      <div className="flex flex-col ml-4 space-y-4">
+        {/* Sent Bar */}
+        <div className="flex items-center space-x-2">
+          <span className="text-white font-medium">Sent:</span>
+          <div className="w-32 bg-gray-700 h-3 rounded">
+            <div
+              className="h-3 bg-green-500 rounded"
+              style={{ width: `${(Number(totalUp) / maxValue) * 100}%` }}
+            />
+          </div>
+          <span className="text-white font-medium">
+            {totalUpMB} MB
+          </span>
+        </div>
 
-      <div className="audit-ratio">
-        <span className="ratio-number">{auditRatio}</span>
+        {/* Received Bar */}
+        <div className="flex items-center space-x-2">
+          <span className="text-white font-medium">Received:</span>
+          <div className="w-32 bg-gray-700 h-3 rounded">
+            <div
+              className="h-3 bg-red-500 rounded"
+              style={{ width: `${(Number(totalDown) / maxValue) * 100}%` }}
+            />
+          </div>
+          <span className="text-white font-medium">
+            {totalDownMB} MB
+          </span>
+        </div>
       </div>
     </div>
   );
 };
-
 
 // Interfaces
 interface AuditGroup {
@@ -173,24 +215,45 @@ async function fetchUserInfo() {
     setAuditData({ validAudits: [], failedAudits: [] });
   }
 
-  // Fetch Audit Stats (Ratio)
-  async function fetchAuditStats() {
-    try {
-      const data = await graphqlFetch(`{ user { auditRatio } }`);
-
-      if (data.data?.user?.length > 0) {
-        const user = data.data.user[0];
-        setAuditStats({
-          auditRatio: user.auditRatio ? parseFloat(user.auditRatio.toFixed(1)) : "No data available",
-        });
-      } else {
-        setAuditStats({ auditRatio: "No data available" });
+// Fetch Audit Stats (Ratio + totalUp + totalDown)
+async function fetchAuditStats() {
+  try {
+    const data = await graphqlFetch(`
+      {
+        user {
+          auditRatio
+          totalUp
+          totalDown
+        }
       }
-    } catch (error) {
-      console.error("Error fetching audit stats:", error);
-      setAuditStats({ auditRatio: "error" });
+    `);
+
+    if (data.data?.user?.length > 0) {
+      const user = data.data.user[0];
+
+      setAuditStats({
+        auditRatio: user.auditRatio ? parseFloat(user.auditRatio.toFixed(1)) : "No data available",
+        totalUp: user.totalUp ?? 0,
+        totalDown: user.totalDown ?? 0,
+      });
+    } else {
+      // No user data found
+      setAuditStats({
+        auditRatio: "No data available",
+        totalUp: 0,
+        totalDown: 0,
+      });
     }
+  } catch (error) {
+    console.error("Error fetching audit stats:", error);
+    setAuditStats({
+      auditRatio: "error",
+      totalUp: 0,
+      totalDown: 0,
+    });
   }
+}
+
 
   // Fetch User Skills
   async function fetchUserSkills() {
@@ -218,9 +281,9 @@ async function fetchUserInfo() {
   
         const skillMapping = {
           technical: [
-            "algo", "sys-admin", "front-end", "back-end", "stats", "game_skill", 
+            "algo", "sys-admin", "front-end", "back-end", "stats", "game", 
             "ai", "tcp/ip", "cybersecurity", "elementary programming",
-            "elementary algo", "blockchain", "mobile"
+            "Elementary algorithms", "blockchain", "mobile"
           ],
           technology: [
             "go", "js", "sql", "html", "css", "unix", "docker", "c", "shell",
@@ -362,6 +425,7 @@ async function fetchUserXp() {
     );
   }
 
+  
   return (
     <div id="profileContainer" className="container active">
       <h1>Hello, {username}!</h1>
@@ -383,21 +447,20 @@ async function fetchUserXp() {
 
   {/* Right Section - Audit Ratio */}
   <div className="w-full md:w-1/2 flex justify-center">
-    {auditStats ? <AuditStatsCard auditRatio={auditStats.auditRatio} /> : <p>Loading audit data...</p>}
+  {auditStats ? (
+  <AuditStatsCard
+    auditRatio={auditStats.auditRatio}
+    totalUp={auditStats.totalUp}
+    totalDown={auditStats.totalDown}
+  />
+) : (
+  <p>Loading audit data...</p>
+)}
+
   </div>
 </div>
 
       </div>
-
-      {/* User XP Display */}
-<div className="bg-card rounded-lg shadow-md p-4 mt-4">
-  <h3 className="text-lg font-semibold text-primary">User XP</h3>
-  <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-  {Array.isArray(userXp) && userXp.length > 0 ? userXp[0].xp : "Loading..."}
-</p>
-
-
-</div>
 
 
       <h3>Valid Audits</h3>

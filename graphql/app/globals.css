@@ -27,7 +27,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f2f2f2;
+  background-color: #0a0a0a;
 }
 
 /* Container styles */
@@ -100,7 +100,8 @@ button:hover {
   margin-top: 30px;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 2px solid #0070f3;
+  border-bottom: 5px solid #0070f3;
+  box-shadow: 0 0px 5px rgba(255, 255, 255, 10.0);
 }
 
 /* List styling */
@@ -125,7 +126,6 @@ ul li:last-child {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
   color: white;
-  width: 300px;
 }
 
 .audit-section {
