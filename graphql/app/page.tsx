@@ -8,9 +8,9 @@ import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 
 // AuditStatsCard Component - Circular Gauge for Audit Ratio
 
-const AuditStatsCard = ({ auditRatio, totalUp, totalDown }) => {
+const AuditStatsCard = ({ auditRatio, totalUp, totalDown }: { auditRatio: number | string; totalUp: number; totalDown: number; }) => {
   // Clamp auditRatio between 0 and 2
-  const ratioValue = Math.min(Math.max(auditRatio, 0), 2);
+  const ratioValue = Math.min(Math.max(Number(auditRatio), 0), 2);
 
   // Data for the circular gauge
   const data = [{ name: "Ratio", value: ratioValue * 50 }];
@@ -18,6 +18,7 @@ const AuditStatsCard = ({ auditRatio, totalUp, totalDown }) => {
   // Convert from KB to MB by dividing by 1000
   const totalUpMB = totalUp ? (Number(totalUp) / 1000).toFixed(2) : "0.00";
   const totalDownMB = totalDown ? (Number(totalDown) / 1000).toFixed(2) : "0.00";
+  console.log("Total Up here:", totalUpMB, "Total Down:", totalDownMB);
 
   // Use the raw KB values for the bar widths
   const maxValue = Math.max(Number(totalUp), Number(totalDown), 1);
@@ -39,7 +40,7 @@ const AuditStatsCard = ({ auditRatio, totalUp, totalDown }) => {
           endAngle={-270}
         >
           <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-          <RadialBar dataKey="value" fill="#00ff99" background dot={false} activeDot={false} />
+          <RadialBar dataKey="value" fill="#00ff99" background />
         </RadialBarChart>
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="ratio-number text-white font-bold">
@@ -113,8 +114,14 @@ export default function Page() {
     }
   }, []);
   
-  const [auditStats, setAuditStats] = useState<{ auditRatio: number | string | null } | null>(null);
-  const [userSkills, setUserSkills] = useState<UserSkill[] | string | null>(null);
+  interface AuditStats {
+    auditRatio: number | string | null;
+    totalUp: number;
+    totalDown: number;
+  }
+
+  const [auditStats, setAuditStats] = useState<AuditStats | null>(null);
+  const [userSkills, setUserSkills] = useState<{ technicalSkills: UserSkill[]; technologies: UserSkill[] } | null>(null);
   const [userLevel, setUserLevel] = useState<number | string | null>(null);
   const [auditData, setAuditData] = useState<AuditData>({ validAudits: [], failedAudits: [] });
   const [loginUsername, setLoginUsername] = useState<string>("");
@@ -449,7 +456,7 @@ async function fetchUserXp() {
   <div className="w-full md:w-1/2 flex justify-center">
   {auditStats ? (
   <AuditStatsCard
-    auditRatio={auditStats.auditRatio}
+    auditRatio={auditStats.auditRatio ?? 0}
     totalUp={auditStats.totalUp}
     totalDown={auditStats.totalDown}
   />
@@ -503,18 +510,18 @@ async function fetchUserXp() {
 <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
 
   {/* Technical Skills Graph */}
-  {userSkills?.technicalSkills?.length > 0 ? (
+  {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
     <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-      <RadarChart title="Technical Skills" skills={userSkills.technicalSkills} />
+      <RadarChart title="Technical Skills" skills={userSkills?.technicalSkills || []} />
     </div>
   ) : (
     <p className="text-center text-white w-full">Loading technical skills...</p>
   )}
 
   {/* Technologies Graph */}
-  {userSkills?.technologies?.length > 0 ? (
+  {(userSkills?.technologies?.length ?? 0) > 0 ? (
     <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-      <RadarChart title="Technologies" skills={userSkills.technologies} />
+      <RadarChart title="Technologies" skills={userSkills?.technologies || []} />
     </div>
   ) : (
     <p className="text-center text-white w-full">Loading technologies...</p>
