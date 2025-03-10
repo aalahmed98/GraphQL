@@ -59,12 +59,42 @@ export default function Page() {
   useEffect(() => {
     if (jwt) {
       fetchAuditStats(jwt)
+        .then((data) => {
+          console.log("Audit Stats:", data);
+          setAuditStats(data);
+        })
+        .catch((err) => console.error("Error fetching audit stats:", err));
+  
       fetchUserSkills(jwt)
+        .then((data) => {
+          console.log("User Skills:", data);
+          setUserSkills(data);
+        })
+        .catch((err) => console.error("Error fetching user skills:", err));
+  
       fetchAuditData(jwt)
+        .then((data) => {
+          console.log("Audit Data:", data);
+          setAuditData(data);
+        })
+        .catch((err) => console.error("Error fetching audit data:", err));
+  
       fetchUserInfo(jwt)
+        .then((data) => {
+          console.log("User Info:", data);
+          setUserInfo(data);
+        })
+        .catch((err) => console.error("Error fetching user info:", err));
+  
       fetchUserXp(jwt)
+        .then((data) => {
+          console.log("User XP:", data);
+          setUserXp(data);
+        })
+        .catch((err) => console.error("Error fetching user XP:", err));
     }
   }, [jwt]);
+  
 
 
   async function handleLogin() {
