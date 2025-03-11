@@ -6,6 +6,7 @@ import RadarChart from "../app/components/RadarChart";
 import XPProgressChart from "../app/components/graphChart";
 import AuditStatsCard from "../app/components/AuditStatsCard";
 import LoginForm from "../app/components/LoginForm"; 
+import { fetchUserPosition } from "../app/utils/api";
 
 import {
   login as loginApi,
@@ -44,9 +45,10 @@ export default function Page() {
   const [userSkills, setUserSkills] = useState<{ technicalSkills: UserSkill[]; technologies: UserSkill[] } | null>(null);
   const [userXp, setUserXp] = useState<number[] | null>(null);
   const [auditData, setAuditData] = useState<AuditData>({ validAudits: [], failedAudits: [] });
-  const [userInfo, setUserInfo] = useState<{ firstName: string; lastName: string; email: string; campus: string } | null>(null);
+  const [userInfo, setUserInfo] = useState<{ id: string; firstName: string; lastName: string; email: string; campus: string } | null>(null);
   const [loginUsername, setLoginUsername] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
+  const [position, setPosition] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -92,8 +94,15 @@ export default function Page() {
           setUserXp(data);
         })
         .catch((err) => console.error("Error fetching user XP:", err));
+
+      if (userInfo && userInfo.id) {
+        fetchUserPosition(jwt, userInfo.id)
+          .then((pos) => setPosition(pos))
+          .catch((err) => console.error("Error fetching user position:", err));
+      }
+      
     }
-  }, [jwt]);
+  }, [jwt, userInfo]);
   
 
 
@@ -152,6 +161,9 @@ export default function Page() {
               <li>
                 <strong>Campus:</strong> {userInfo.campus}
               </li>
+              <li>
+    <strong>Position:</strong> {position ? position : "Loading..."}
+  </li>
             </ul>
           ) : (
             <p>Loading user info...</p>

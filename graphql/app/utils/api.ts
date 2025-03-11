@@ -25,6 +25,7 @@ export async function fetchUserInfo(jwt: string) {
     jwt,
     `{
       user {
+        id
         firstName
         lastName
         email
@@ -169,4 +170,51 @@ export async function login(usernameInput: string, passwordInput: string) {
     throw new Error(data.error || data.message || "Unknown error");
   }
   return data; // returns the JWT token
+}
+
+
+export async function fetchUserPosition(jwt: string, userID: number) {
+  const query = `
+    query getUserPosition($userID: Int!) {
+      event(where: { id: { _eq: 72 } }) {
+        id
+        registrations {
+          users(where: { id: { _eq: $userID } }) {
+            id
+            position
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(API_GRAPHQL_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${jwt}`,
+    },
+    body: JSON.stringify({
+      query,
+      variables: { userID },
+    }),
+  });
+  const data = await response.json();
+
+  if (data.errors && data.errors[0]?.message.includes("JWTExpired")) {
+    throw new Error("JWTExpired");
+  }
+
+  // Parse the response to extract the user's position.
+  if (data.data && data.data.event && data.data.event.length > 0) {
+    const event = data.data.event[0];
+    if (event.registrations && event.registrations.length > 0) {
+      for (const registration of event.registrations) {
+        if (registration.users && registration.users.length > 0) {
+          return registration.users[0].position;
+        }
+      }
+    }
+  }
+  return null;
 }
