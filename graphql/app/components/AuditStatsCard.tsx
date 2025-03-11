@@ -41,7 +41,8 @@ const AuditStatsCard: React.FC<AuditStatsCardProps> = ({ auditRatio, totalUp, to
       {/* Right: Sent & Received Bars */}
       <div className="flex flex-col ml-4 space-y-4">
         <div className="flex items-center space-x-2">
-          <span className="text-white font-medium">Sent:</span>
+        <span className="text-white font-medium">Sent&nbsp;&#x2935;</span>
+
           <div className="w-32 bg-gray-700 h-3 rounded">
             <div
               className="h-3 bg-green-500 rounded"
@@ -51,7 +52,7 @@ const AuditStatsCard: React.FC<AuditStatsCardProps> = ({ auditRatio, totalUp, to
           <span className="text-white font-medium">{totalUpMB} MB</span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-white font-medium">Received:</span>
+          <span className="text-white font-medium">Received&nbsp;&#x2934; </span>
           <div className="w-32 bg-gray-700 h-3 rounded">
             <div
               className="h-3 bg-red-500 rounded"
