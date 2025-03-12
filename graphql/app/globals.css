@@ -8,6 +8,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --gold: #D4AF37;
+  --gray: #1E1E1E;
+  --emerald: #50C878;
+  --crimson: #DC143C;
+  --ivory: #FFFFF0;
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,6 +92,9 @@ button:hover {
   text-align: center;
   margin-bottom: 20px;
   font-size: 30px;
+  box-shadow: var(--gold) 0px 0px 20px;
+  color: var(--gold);
+  font-family: ;
 }
 
 #profileContainer p {
@@ -98,7 +107,7 @@ button:hover {
   margin-top: 30px;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 5px solid #0070f3;
+  border-bottom: 5px solid var(--gold);
   box-shadow: 0 0px 5px rgba(255, 255, 255, 10.0);
 }
 

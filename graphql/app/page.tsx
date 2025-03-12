@@ -178,33 +178,41 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Valid Audits Section */}
-      <h3>Valid Audits</h3>
-      <ul className="audit-list">
-        {auditData?.validAudits?.length > 0 ? (
-          auditData.validAudits.slice(0, 4).map((audit, i) => (
-            <li key={i} className="audit-item">
-              {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
-            </li>
-          ))
-        ) : (
-          <li className="audit-item">No valid audits available</li>
-        )}
-      </ul>
-
-      {/* Failed Audits Section */}
-      <h3>Failed Audits</h3>
-      <ul className="audit-list">
-        {auditData?.failedAudits?.length > 0 ? (
-          auditData.failedAudits.slice(0, 4).map((audit, i) => (
-            <li key={i} className="audit-item text-red-500">
-              {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
-            </li>
-          ))
-        ) : (
-          <li className="audit-item text-red-500">No failed audits available</li>
-        )}
-      </ul>
+      {/* Single container with valid (left) and failed audits (right) */}
+      <div className="flex mt-6 border border-gray-700 rounded-lg">
+        <div className="w-1/2 p-4">
+          <h3 className="mb-2">Valid Audits</h3>
+          <ul className="audit-list">
+            {auditData?.validAudits?.length > 0 ? (
+              auditData.validAudits.slice(0, 4).map((audit, i) => (
+                <li key={i} className="audit-item">
+                  {audit.group.captainLogin} -{" "}
+                  {audit.group.path.split("/").pop()}
+                </li>
+              ))
+            ) : (
+              <li className="audit-item">No valid audits available</li>
+            )}
+          </ul>
+        </div>
+        <div className="w-1/2 p-4 border-l border-gray-700">
+          <h3 className="mb-2">Failed Audits</h3>
+          <ul className="audit-list">
+            {auditData?.failedAudits?.length > 0 ? (
+              auditData.failedAudits.slice(0, 4).map((audit, i) => (
+                <li key={i} className="audit-item text-red-500">
+                  {audit.group.captainLogin} -{" "}
+                  {audit.group.path.split("/").pop()}
+                </li>
+              ))
+            ) : (
+              <li className="audit-item text-red-500">
+                No failed audits available
+              </li>
+            )}
+          </ul>
+        </div>
+      </div>
 
       {/* XP Progress Chart Section */}
       {userXp !== null ? (

@@ -9,7 +9,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const XPProgressChart = ({ xpData }) => {
+interface XPProgressChartProps {
+  xpData: { xp: number | string }[]
+}
+
+const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   if (!xpData || xpData.length === 0) {
     return <p className="text-center text-white">No XP data available</p>;
   }
