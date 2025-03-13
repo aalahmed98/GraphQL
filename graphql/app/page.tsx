@@ -148,100 +148,106 @@ export default function Page() {
   }
 
 
-  return (
-    <>
-      <VantaBackground />
-      <div id="profileContainer" className="container active">
-        <h1>Hello, {username}!</h1>
-        <div className="flex flex-wrap justify-between items-center">
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold text-primary">User Information</h3>
-            <ul className="mt-2 text-muted-foreground">
-              <li>
-                <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
-              </li>
-              <li>
-                <strong>Email:</strong> {userInfo?.email}
-              </li>
-              <li>
-                <strong>Position:</strong> {position ? position : "Loading..."}
-              </li>
-              <li>
-                <strong>Campus:</strong> {userInfo?.campus}
-              </li>
-            </ul>
-          </div>
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
-            {auditStats ? (
-              <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+return (
+  <>
+    {/* VANTA background */}
+    <VantaBackground />
+
+    {/* Main page content */}
+    <div id="profileContainer" className="container active">
+      <h1>Hello, {username}!</h1>
+      <div className="flex flex-wrap justify-between items-center">
+        {/* User Information Section */}
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+          <h3 className="text-lg font-semibold text-primary">User Information</h3>
+          <ul className="mt-2 text-muted-foreground">
+            <li>
+              <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
+            </li>
+            <li>
+              <strong>Email:</strong> {userInfo?.email}
+            </li>
+            <li>
+              <strong>Position:</strong> {position ? position : "Loading..."}
+            </li>
+            <li>
+              <strong>Campus:</strong> {userInfo?.campus}
+            </li>
+          </ul>
+        </div>
+        {/* Audit Ratio Animation Section */}
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
+          {auditStats ? (
+            <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+          ) : (
+            <p>Loading audit data...</p>
+          )}
+        </div>
+      </div>
+
+      {/* Audits Sections */}
+      <div className="flex mt-6">
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+          <h3 className="mb-2">Valid Audits</h3>
+          <ul className="audit-list">
+            {auditData?.validAudits?.length > 0 ? (
+              auditData.validAudits.slice(0, 4).map((audit, i) => (
+                <li key={i} className="audit-item">
+                  {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
+                </li>
+              ))
             ) : (
-              <p>Loading audit data...</p>
+              <li className="audit-item">No valid audits available</li>
             )}
-          </div>
+          </ul>
         </div>
-
-        <div className="flex mt-6">
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="mb-2">Valid Audits</h3>
-            <ul className="audit-list">
-              {auditData?.validAudits?.length > 0 ? (
-                auditData.validAudits.slice(0, 4).map((audit, i) => (
-                  <li key={i} className="audit-item">
-                    {audit.group.captainLogin} -{" "}
-                    {audit.group.path.split("/").pop()}
-                  </li>
-                ))
-              ) : (
-                <li className="audit-item">No valid audits available</li>
-              )}
-            </ul>
-          </div>
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="mb-2">Failed Audits</h3>
-            <ul className="audit-list">
-              {auditData?.failedAudits?.length > 0 ? (
-                auditData.failedAudits.slice(0, 4).map((audit, i) => (
-                  <li key={i} className="audit-item text-red-500">
-                    {audit.group.captainLogin} -{" "}
-                    {audit.group.path.split("/").pop()}
-                  </li>
-                ))
-              ) : (
-                <li className="audit-item text-red-500">No failed audits available</li>
-              )}
-            </ul>
-          </div>
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+          <h3 className="mb-2">Failed Audits</h3>
+          <ul className="audit-list">
+            {auditData?.failedAudits?.length > 0 ? (
+              auditData.failedAudits.slice(0, 4).map((audit, i) => (
+                <li key={i} className="audit-item text-red-500">
+                  {audit.group.captainLogin} - {audit.group.path.split("/").pop()}
+                </li>
+              ))
+            ) : (
+              <li className="audit-item text-red-500">No failed audits available</li>
+            )}
+          </ul>
         </div>
+      </div>
 
-        {userXp !== null ? (
-          <div className="mt-6">
-            <XPProgressChart xpData={userXp} />
+      {/* XP Progress Chart */}
+      {userXp !== null ? (
+        <div className="mt-6">
+          <XPProgressChart xpData={userXp} />
+        </div>
+      ) : (
+        <p>Loading XP Data...</p>
+      )}
+
+      {/* Skill Radar Section */}
+      <h3 className="text-center text-white text-2xl font-bold mb-4">Skill Radar</h3>
+      <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
+        {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
+          <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+            <RadarChart title="Technical Skills" skills={userSkills?.technicalSkills || []} />
           </div>
         ) : (
-          <p>Loading XP Data...</p>
+          <p className="text-center text-white w-full">Loading technical skills...</p>
         )}
-
-        <h3 className="text-center text-white text-2xl font-bold mb-4">
-          Skill Radar
-        </h3>
-        <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
-          {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
-            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-              <RadarChart title="Technical Skills" skills={userSkills?.technicalSkills || []} />
-            </div>
-          ) : (
-            <p className="text-center text-white w-full">Loading technical skills...</p>
-          )}
-          {(userSkills?.technologies?.length ?? 0) > 0 ? (
-            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-              <RadarChart title="Technologies" skills={userSkills?.technologies || []} />
-            </div>
-          ) : (
-            <p className="text-center text-white w-full">Loading technologies...</p>
-          )}
-        </div>
-        <button onClick={logout}>Logout</button>
+        {(userSkills?.technologies?.length ?? 0) > 0 ? (
+          <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+            <RadarChart title="Technologies" skills={userSkills?.technologies || []} />
+          </div>
+        ) : (
+          <p className="text-center text-white w-full">Loading technologies...</p>
+        )}
       </div>
-    </>
-  );
+
+      <button onClick={logout}>Logout</button>
+    </div>
+  </>
+);
+
 }

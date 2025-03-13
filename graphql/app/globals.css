@@ -7,8 +7,8 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-  --gold: rgb(212, 175, 53);
+  --foreground: hsl(0, 0%, 9%);
+  --gold: #d4af35;
   --gray: #1E1E1E;
   --emerald: #50C878;
   --crimson: #DC143C;

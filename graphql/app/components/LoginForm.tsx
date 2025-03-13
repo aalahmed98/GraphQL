@@ -31,25 +31,23 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
     const initVanta = async () => {
       try {
-        // Load Three.js and VANTA.DOTS scripts
-        await loadScript(
-          "https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"
-        );
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"
-        );
-        // Once loaded, initialize the VANTA DOTS effect on the full-page background element.
+        // Load Three.js r134 and VANTA.NET scripts
+        await loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js");
+        await loadScript("https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js");
+        // Once loaded, initialize the VANTA.NET effect on the full-page background element.
         if (window.VANTA) {
-          window.VANTA.DOTS({
+          window.VANTA.NET({
             el: "#vanta-bg", // target the full-page background element
-            mouseControls: true,
-            touchControls: true,
+            mouseControls: false,
+            touchControls: false,
             gyroControls: false,
             minHeight: 200.0,
             minWidth: 200.0,
             scale: 1.0,
             scaleMobile: 1.0,
-            showLines: false,
+            color: 0xd4af35,       // Gold color for the lines (#d4af35)
+            backgroundColor: 0x171717, // Background set to #171717
+            showDots: false,       // Only lines, no dots
           });
         }
       } catch (error) {
@@ -62,7 +60,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   return (
     <>
-      {/* Full-page background container for VANTA */}
+      {/* Full-page VANTA background container */}
       <div
         id="vanta-bg"
         style={{
@@ -82,7 +80,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "black",
+          backgroundColor: "black", // Login card background (you can adjust this for contrast)
           padding: "2rem",
           borderRadius: "8px",
           zIndex: 1,
@@ -127,10 +125,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
             overflow: "hidden",
             transition: "all 0.3s",
             lineHeight: "1.4em",
-            border: "2px solid #D4AF37",
-            background: "linear-gradient(to right, rgba(212, 175, 55, 0.1) 1%, transparent 40%, transparent 60%, rgba(212, 175, 55, 0.1) 100%)",
-            color: "#D4AF37",
-            boxShadow: "inset 0 0 10px rgba(212, 175, 55, 0.4), 0 0 9px 3px rgba(212, 175, 55, 0.1)",
+            border: "2px solid #D4AF35",
+            background: "linear-gradient(to right, rgba(212, 175, 53, 0.1) 1%, transparent 40%, transparent 60%, rgba(212, 175, 53, 0.1) 100%)",
+            color: "#D4AF35",
+            boxShadow: "inset 0 0 10px rgba(212, 175, 53, 0.4), 0 0 9px 3px rgba(212, 175, 53, 0.1)",
           }}
         >
           Login
