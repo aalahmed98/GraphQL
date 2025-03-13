@@ -9,8 +9,8 @@ const RadarChart = ({ title, skills }) => {
     return <p className="text-center text-white">No skill data available for {title}</p>;
   }
 
-  const skillLabels = skills.map(skill => skill.type);
-  const skillValues = skills.map(skill => skill.amount);
+  const skillLabels = skills.map((skill: { type: string; amount: number }) => skill.type);
+  const skillValues = skills.map((skill: { type: string; amount: number }) => skill.amount);
 
   const chartOptions = {
     chart: {
@@ -40,7 +40,7 @@ const RadarChart = ({ title, skills }) => {
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <h2 className="text-white text-lg font-bold mb-4">{title}</h2>
-      <div className="w-[500px] h-[550px] bg-gray-800 p-4 rounded-xl">
+      <div className="w-[500px] h-[550px] p-4 rounded-xl">
         <ApexChart options={chartOptions} series={chartSeries} type="radar" height={520} />
       </div>
     </div>

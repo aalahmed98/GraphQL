@@ -8,7 +8,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --gold: #D4AF37;
+  --gold: rgb(212, 175, 53);
   --gray: #1E1E1E;
   --emerald: #50C878;
   --crimson: #DC143C;
@@ -72,20 +72,57 @@ input {
 
 /* Button styling */
 button {
-  width: 100%;
-  padding: 12px;
-  background-color: #0070f3;
-  border: none;
-  border-radius: 4px;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+
+  --gold: #D4AF37;
+  font-size: 15px;
+  padding: 0.7em 2.7em;
+  letter-spacing: 0.06em;
+  position: relative;
+  font-family: inherit;
+  border-radius: 0.6em;
+  overflow: hidden;
+  transition: all 0.3s;
+  line-height: 1.4em;
+  border: 2px solid var(--gold);
+  background: linear-gradient(
+    to right,
+    rgba(212, 175, 55, 0.1) 1%,
+    transparent 40%,
+    transparent 60%,
+    rgba(212, 175, 55, 0.1) 100%
+  );
+  color: var(--gold);
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.4),
+              0 0 9px 3px rgba(212, 175, 55, 0.1);
 }
 
 button:hover {
-  background-color: #005bb5;
+  color: #ffd700; /* a slightly brighter gold */
+  box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.6),
+              0 0 9px 3px rgba(212, 175, 55, 0.2);
 }
+
+button:before {
+  content: "";
+  position: absolute;
+  left: -4em;
+  width: 4em;
+  height: 100%;
+  top: 0;
+  transition: transform 0.4s ease-in-out;
+  background: linear-gradient(
+    to right,
+    transparent 1%,
+    rgba(212, 175, 55, 0.1) 40%,
+    rgba(212, 175, 55, 0.1) 60%,
+    transparent 100%
+  );
+}
+
+button:hover:before {
+  transform: translateX(15em);
+}
+
 
 /* Profile Container */
 #profileContainer h1 {

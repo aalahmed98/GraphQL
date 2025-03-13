@@ -25,7 +25,7 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   }));
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
+    <div className="w-full bg-card rounded-lg shadow-md p-4">
       <div className="flex justify-between items-center">
         <p className="text-lg font-bold text-gray-900 dark:text-white">XP Progress</p>
       </div>
