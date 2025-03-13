@@ -21,8 +21,8 @@ const VantaBackground: React.FC = () => {
         await loadScript("/three.r134.min.js");
         await loadScript("/vanta.net.min.js");
 
-        if (window.VANTA) {
-          window.VANTA.NET({
+        if ((window as any).VANTA) {
+          (window as any).VANTA.NET({
             el: "#vanta-bg", // target the full-page background element
             mouseControls: false,
             touchControls: false,

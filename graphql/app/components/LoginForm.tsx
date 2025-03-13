@@ -35,8 +35,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
         await loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js");
         await loadScript("https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js");
         // Once loaded, initialize the VANTA.NET effect on the full-page background element.
-        if (window.VANTA) {
-          window.VANTA.NET({
+        if ((window as any).VANTA) {
+          (window as any).VANTA.NET({
             el: "#vanta-bg", // target the full-page background element
             mouseControls: false,
             touchControls: false,

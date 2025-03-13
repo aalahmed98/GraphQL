@@ -1,18 +1,28 @@
 import React from "react";
 import dynamic from "next/dynamic";
+import type { ApexOptions } from "apexcharts";
 
 const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-//A const to represent the two skills charts
-const RadarChart = ({ title, skills }) => {
+interface Skill {
+  type: string;
+  amount: number;
+}
+
+interface RadarChartProps {
+  title: string;
+  skills: Skill[];
+}
+
+const RadarChart = ({ title, skills }: RadarChartProps) => {
   if (!skills || skills.length === 0) {
     return <p className="text-center text-white">No skill data available for {title}</p>;
   }
 
-  const skillLabels = skills.map((skill: { type: string; amount: number }) => skill.type);
-  const skillValues = skills.map((skill: { type: string; amount: number }) => skill.amount);
+  const skillLabels = skills.map(skill => skill.type);
+  const skillValues = skills.map(skill => skill.amount);
 
-  const chartOptions = {
+  const chartOptions: ApexOptions = {
     chart: {
       type: "radar",
       toolbar: { show: false },
@@ -46,6 +56,5 @@ const RadarChart = ({ title, skills }) => {
     </div>
   );
 };
-
 
 export default RadarChart;
