@@ -15,8 +15,7 @@ import {
   fetchUserSkills,
   fetchUserXp,
   fetchAuditData,
-  // If you use fetchUserPosition, uncomment the following:
-  // fetchUserPosition,
+  fetchUserPosition,
 } from "../app/utils/api";
 
 // Interfaces for type checking
@@ -93,13 +92,12 @@ export default function Page() {
       fetchUserInfo(jwt)
         .then((data) => {
           setUserInfo(data);
-          // If you also need the user's position, ensure your user info query returns an id,
-          // then call fetchUserPosition (uncomment the code below if using it):
-          // if (data && data.id) {
-          //   fetchUserPosition(jwt, data.id)
-          //     .then(setPosition)
-          //     .catch((err) => console.error("Error fetching user position:", err));
-          // }
+
+          if (data && data.id) {
+            fetchUserPosition(jwt, data.id)
+              .then(setPosition)
+              .catch((err) => console.error("Error fetching user position:", err));
+          }
         })
         .catch((err) => console.error("Error fetching user info:", err));
 
