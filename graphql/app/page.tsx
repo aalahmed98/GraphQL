@@ -169,7 +169,7 @@ export default function Page() {
           </ul>
         </div>
         {/* Audit Ratio Animation Section */}
-        <div className="w-full md:w-1/2 flex justify-center">
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
           {auditStats ? (
             <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
           ) : (
@@ -179,8 +179,8 @@ export default function Page() {
       </div>
 
       {/* Single container with valid (left) and failed audits (right) */}
-      <div className="flex mt-6 border border-gray-700 rounded-lg">
-        <div className="w-1/2 p-4">
+      <div className="flex mt-6">
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
           <h3 className="mb-2">Valid Audits</h3>
           <ul className="audit-list">
             {auditData?.validAudits?.length > 0 ? (
@@ -195,7 +195,7 @@ export default function Page() {
             )}
           </ul>
         </div>
-        <div className="w-1/2 p-4 border-l border-gray-700">
+        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
           <h3 className="mb-2">Failed Audits</h3>
           <ul className="audit-list">
             {auditData?.failedAudits?.length > 0 ? (

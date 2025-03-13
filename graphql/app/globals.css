@@ -41,7 +41,7 @@ body {
   background-color: #fff;
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
 }
 
 /* Ensuring the container is displayed */
@@ -94,7 +94,7 @@ button:hover {
   font-size: 30px;
   box-shadow: var(--gold) 0px 0px 20px;
   color: var(--gold);
-  font-family: ;
+  
 }
 
 #profileContainer p {
@@ -107,8 +107,8 @@ button:hover {
   margin-top: 30px;
   margin-bottom: 10px;
   padding-bottom: 5px;
-  border-bottom: 5px solid var(--gold);
-  box-shadow: 0 0px 5px rgba(255, 255, 255, 10.0);
+
+  box-shadow: 0 0px 10px var(--gold);
 }
 
 /* List styling */

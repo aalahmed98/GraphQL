@@ -27,7 +27,7 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white">XP Progress</h3>
+        <p className="text-lg font-bold text-gray-900 dark:text-white">XP Progress</p>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
