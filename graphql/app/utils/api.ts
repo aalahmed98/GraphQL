@@ -51,7 +51,9 @@ export async function fetchAuditStats(jwt: string) {
   if (data.data?.user?.length > 0) {
     const user = data.data.user[0];
     return {
-      auditRatio: user.auditRatio ? parseFloat(user.auditRatio.toFixed(1)) : "No data available",
+      auditRatio: user.auditRatio
+        ? parseFloat(user.auditRatio.toFixed(1))
+        : "No data available",
       totalUp: user.totalUp ?? 0,
       totalDown: user.totalDown ?? 0,
     };
@@ -87,14 +89,18 @@ export async function fetchUserSkills(jwt: string) {
     skills.forEach((skill) => {
       if (SKILL_MAPPING.technical.some((ts) => skill.type.includes(ts))) {
         technicalSkills.push(skill);
-      } else if (SKILL_MAPPING.technology.some((tech) => skill.type.includes(tech))) {
+      } else if (
+        SKILL_MAPPING.technology.some((tech) => skill.type.includes(tech))
+      ) {
         technologies.push(skill);
       } else {
         console.warn(`Unrecognized Skill: ${skill.type}`);
       }
     });
 
-    technicalSkills = technicalSkills.sort((a, b) => b.amount - a.amount).slice(0, 6);
+    technicalSkills = technicalSkills
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 6);
     technologies = technologies.sort((a, b) => b.amount - a.amount).slice(0, 6);
 
     return { technicalSkills, technologies };
@@ -109,7 +115,8 @@ export async function fetchUserXp(jwt: string) {
     jwt,
     `{
       transaction(
-        where: { type: { _eq: "xp" } }
+        where: { 
+          type: { _eq: "xp" } }
         order_by: { createdAt: asc }
       ) {
         amount
@@ -120,7 +127,7 @@ export async function fetchUserXp(jwt: string) {
   if (data.data?.transaction?.length > 0) {
     let cumulative = 0;
     const cumulativeData = data.data.transaction.map((entry: any) => {
-      cumulative += Number(entry.amount);
+      cumulative += Number(entry.amount) / 1000;
       return { xp: cumulative };
     });
     return cumulativeData;
@@ -171,7 +178,6 @@ export async function login(usernameInput: string, passwordInput: string) {
   }
   return data; // returns the JWT token
 }
-
 
 export async function fetchUserPosition(jwt: string, userID: number) {
   const query = `
