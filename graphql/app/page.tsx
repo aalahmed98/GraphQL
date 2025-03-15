@@ -6,6 +6,7 @@ import RadarChart from "../app/components/RadarChart";
 import XPProgressChart from "../app/components/graphChart";
 import AuditRatioAnimation from "../app/components/AuditRatioAnimation";
 import LoginForm from "../app/components/LoginForm";
+import VantaBackground from "../app/components/VantaBackground"; // Import the Vanta background
 
 import {
   login as loginApi,
@@ -14,7 +15,6 @@ import {
   fetchUserSkills,
   fetchUserXp,
   fetchAuditData,
-  // If you use fetchUserPosition, uncomment the following:
   fetchUserPosition,
 } from "../app/utils/api";
 
@@ -92,12 +92,12 @@ export default function Page() {
       fetchUserInfo(jwt)
         .then((data) => {
           setUserInfo(data);
-          // If you also need the user's position, ensure your user info query returns an id,
-          // then call fetchUserPosition (uncomment the code below if using it):
           if (data && data.id) {
             fetchUserPosition(jwt, data.id)
               .then(setPosition)
-              .catch((err) => console.error("Error fetching user position:", err));
+              .catch((err) =>
+                console.error("Error fetching user position:", err)
+              );
           }
         })
         .catch((err) => console.error("Error fetching user info:", err));
@@ -133,123 +133,138 @@ export default function Page() {
     setAuditData({ validAudits: [], failedAudits: [] });
   }
 
-  // If not logged in, render the login form
+  // If not logged in, render the login form with the background
   if (!jwt) {
     return (
-      <LoginForm
-        loginUsername={loginUsername}
-        loginPassword={loginPassword}
-        setLoginUsername={setLoginUsername}
-        setLoginPassword={setLoginPassword}
-        handleLogin={handleLogin}
-      />
+      <>
+        <VantaBackground />
+        <LoginForm
+          loginUsername={loginUsername}
+          loginPassword={loginPassword}
+          setLoginUsername={setLoginUsername}
+          setLoginPassword={setLoginPassword}
+          handleLogin={handleLogin}
+        />
+      </>
     );
   }
 
   return (
-    <div id="profileContainer" className="container active">
-      <h1>Hello, {username}!</h1>
-      <div className="flex flex-wrap justify-between items-center">
-        {/* User Information Section */}
-        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-          <h3 className="text-lg font-semibold text-primary">User Information</h3>
-          <ul className="mt-2 text-muted-foreground">
-            <li>
-              <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
-            </li>
-            <li>
-              <strong>Email:</strong> {userInfo?.email}
-            </li>
-            <li>
-              <strong>Position:</strong> {position ? position : "Loading..."}
-            </li>
-            <li>
-              <strong>Campus:</strong> {userInfo?.campus}
-            </li>
-          </ul>
+    <>
+      <VantaBackground />
+      <div id="profileContainer" className="container active">
+        <h1>Hello, {username}!</h1>
+        <div className="flex flex-wrap justify-between items-center">
+          {/* User Information Section */}
+          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+            <h3 className="text-lg font-semibold text-primary">
+              User Information
+            </h3>
+            <ul className="mt-2 text-muted-foreground">
+              <li>
+                <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
+              </li>
+              <li>
+                <strong>Email:</strong> {userInfo?.email}
+              </li>
+              <li>
+                <strong>Position:</strong>{" "}
+                {position ? position : "Loading..."}
+              </li>
+              <li>
+                <strong>Campus:</strong> {userInfo?.campus}
+              </li>
+            </ul>
+          </div>
+          {/* Audit Ratio Animation Section */}
+          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
+            {auditStats ? (
+              <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+            ) : (
+              <p>Loading audit data...</p>
+            )}
+          </div>
         </div>
-        {/* Audit Ratio Animation Section */}
-        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
-          {auditStats ? (
-            <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+
+        {/* Single container with valid (left) and failed audits (right) */}
+        <div className="flex mt-6">
+          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+            <h3 className="mb-2">Valid Audits</h3>
+            <ul className="audit-list">
+              {auditData?.validAudits?.length > 0 ? (
+                auditData.validAudits.slice(0, 4).map((audit, i) => (
+                  <li key={i} className="audit-item">
+                    {audit.group.captainLogin} -{" "}
+                    {audit.group.path.split("/").pop()}
+                  </li>
+                ))
+              ) : (
+                <li className="audit-item">No valid audits available</li>
+              )}
+            </ul>
+          </div>
+          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
+            <h3 className="mb-2">Failed Audits</h3>
+            <ul className="audit-list">
+              {auditData?.failedAudits?.length > 0 ? (
+                auditData.failedAudits.slice(0, 4).map((audit, i) => (
+                  <li key={i} className="audit-item text-red-500">
+                    {audit.group.captainLogin} -{" "}
+                    {audit.group.path.split("/").pop()}
+                  </li>
+                ))
+              ) : (
+                <li className="audit-item text-red-500">
+                  No failed audits available
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        {/* XP Progress Chart Section */}
+        {userXp !== null ? (
+          <div className="mt-6">
+            <XPProgressChart xpData={userXp} />
+          </div>
+        ) : (
+          <p>Loading XP Data...</p>
+        )}
+
+        {/* Skill Radar Section */}
+        <h3 className="text-center text-white text-2xl font-bold mb-4">
+          Skill Radar
+        </h3>
+        <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
+          {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
+            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+              <RadarChart
+                title="Technical Skills"
+                skills={userSkills?.technicalSkills || []}
+              />
+            </div>
           ) : (
-            <p>Loading audit data...</p>
+            <p className="text-center text-white w-full">
+              Loading technical skills...
+            </p>
+          )}
+
+          {(userSkills?.technologies?.length ?? 0) > 0 ? (
+            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
+              <RadarChart
+                title="Technologies"
+                skills={userSkills?.technologies || []}
+              />
+            </div>
+          ) : (
+            <p className="text-center text-white w-full">
+              Loading technologies...
+            </p>
           )}
         </div>
+
+        <button onClick={logout}>Logout</button>
       </div>
-
-      {/* Single container with valid (left) and failed audits (right) */}
-      <div className="flex mt-6">
-        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-          <h3 className="mb-2">Valid Audits</h3>
-          <ul className="audit-list">
-            {auditData?.validAudits?.length > 0 ? (
-              auditData.validAudits.slice(0, 4).map((audit, i) => (
-                <li key={i} className="audit-item">
-                  {audit.group.captainLogin} -{" "}
-                  {audit.group.path.split("/").pop()}
-                </li>
-              ))
-            ) : (
-              <li className="audit-item">No valid audits available</li>
-            )}
-          </ul>
-        </div>
-        <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-          <h3 className="mb-2">Failed Audits</h3>
-          <ul className="audit-list">
-            {auditData?.failedAudits?.length > 0 ? (
-              auditData.failedAudits.slice(0, 4).map((audit, i) => (
-                <li key={i} className="audit-item text-red-500">
-                  {audit.group.captainLogin} -{" "}
-                  {audit.group.path.split("/").pop()}
-                </li>
-              ))
-            ) : (
-              <li className="audit-item text-red-500">
-                No failed audits available
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
-
-      {/* XP Progress Chart Section */}
-      {userXp !== null ? (
-        <div className="mt-6">
-          <XPProgressChart xpData={userXp} />
-        </div>
-      ) : (
-        <p>Loading XP Data...</p>
-      )}
-
-      {/* Skill Radar Section */}
-      <h3 className="text-center text-white text-2xl font-bold mb-4">
-        Skill Radar
-      </h3>
-      <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
-        {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
-          <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-            <RadarChart title="Technical Skills" skills={userSkills?.technicalSkills || []} />
-          </div>
-        ) : (
-          <p className="text-center text-white w-full">
-            Loading technical skills...
-          </p>
-        )}
-
-        {(userSkills?.technologies?.length ?? 0) > 0 ? (
-          <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-            <RadarChart title="Technologies" skills={userSkills?.technologies || []} />
-          </div>
-        ) : (
-          <p className="text-center text-white w-full">
-            Loading technologies...
-          </p>
-        )}
-      </div>
-
-      <button onClick={logout}>Logout</button>
-    </div>
+    </>
   );
 }

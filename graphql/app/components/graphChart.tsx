@@ -10,18 +10,30 @@ import {
 } from "recharts";
 
 interface XPProgressChartProps {
-  xpData: { xp: number | string }[]
+  xpData: { xp: number | string }[];
 }
+
+// Custom tooltip component that only displays the XP value
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip bg-white p-2 border border-gray-300">
+        <p className="label text-black">{`XP: ${payload[0].value}`}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   if (!xpData || xpData.length === 0) {
     return <p className="text-center text-white">No XP data available</p>;
   }
 
-  // Format your data for Recharts
-  const formattedData = xpData.map((entry, index) => ({
-    id: index + 1,
-    xp: Number(entry.xp),
+  // Format your data for Recharts, rounding xp to the nearest whole number
+  // Remove any extra fields so that the tooltip only sees the xp property
+  const formattedData = xpData.map((entry) => ({
+    xp: Math.round(Number(entry.xp)),
   }));
 
   return (
@@ -41,10 +53,10 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
           </defs>
 
           <CartesianGrid strokeDasharray="3 3" />
-          {/* Hide X-axis labels; remove `hide` if you want them visible */}
+          {/* Hide the x-axis completely */}
           <XAxis hide stroke="#ccc" />
           <YAxis stroke="#ccc" />
-          <Tooltip />
+          <Tooltip content={<CustomTooltip />} />
 
           {/* Smooth area line with no dots */}
           <Area
@@ -52,8 +64,8 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
             dataKey="xp"
             stroke="#00ff99"
             fill="url(#colorXp)"
-            dot={false}       
-            activeDot={false} 
+            dot={false}
+            activeDot={false}
           />
         </AreaChart>
       </ResponsiveContainer>
@@ -62,4 +74,3 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
 };
 
 export default XPProgressChart;
-
