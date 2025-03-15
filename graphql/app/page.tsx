@@ -65,6 +65,8 @@ export default function Page() {
   const [position, setPosition] = useState<string | null>(null);
   const [loginUsername, setLoginUsername] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
+  // State to control which radar chart is displayed: 0 for Technical Skills, 1 for Technologies.
+  const [currentRadarIndex, setCurrentRadarIndex] = useState<number>(0);
 
   // Load JWT and username from localStorage on mount
   useEffect(() => {
@@ -235,33 +237,41 @@ export default function Page() {
         <h3 className="text-center text-white text-2xl font-bold mb-4">
           Skill Radar
         </h3>
-        <div className="radar-charts-container flex flex-wrap justify-center gap-10 items-center">
-          {(userSkills?.technicalSkills?.length ?? 0) > 0 ? (
-            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-              <RadarChart
-                title="Technical Skills"
-                skills={userSkills?.technicalSkills || []}
+        {userSkills ? (
+          <div className="relative flex flex-col items-center">
+            <RadarChart
+              title={
+                currentRadarIndex === 0
+                  ? "Technical Skills"
+                  : "Technologies"
+              }
+              skills={
+                currentRadarIndex === 0
+                  ? userSkills.technicalSkills
+                  : userSkills.technologies
+              }
+            />
+            {/* Checkbox-based toggle */}
+            <div className="text-center mt-4">
+              <input
+                type="checkbox"
+                id="animation1"
+                onChange={(e) =>
+                  setCurrentRadarIndex(e.target.checked ? 1 : 0)
+                }
+                checked={currentRadarIndex === 1}
+                className="hidden"
               />
+              <label htmlFor="animation1">
+                <div className="arrow"></div>
+              </label>
             </div>
-          ) : (
-            <p className="text-center text-white w-full">
-              Loading technical skills...
-            </p>
-          )}
-
-          {(userSkills?.technologies?.length ?? 0) > 0 ? (
-            <div className="w-full md:w-[45%] lg:w-[40%] flex justify-center">
-              <RadarChart
-                title="Technologies"
-                skills={userSkills?.technologies || []}
-              />
-            </div>
-          ) : (
-            <p className="text-center text-white w-full">
-              Loading technologies...
-            </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-white w-full">
+            Loading skills...
+          </p>
+        )}
 
         <button onClick={logout}>Logout</button>
       </div>

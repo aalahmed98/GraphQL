@@ -1,6 +1,15 @@
 import { useRouter } from "next/router";
 
-const AllAuditsPage = ({ auditData }) => {
+interface AuditData {
+  validAudits: {
+    group: {
+      captainLogin: string;
+      path: string;
+    }
+  }[];
+}
+
+const AllAuditsPage: React.FC<{ auditData: AuditData }> = ({ auditData }) => {
   const router = useRouter();
 
   return (
