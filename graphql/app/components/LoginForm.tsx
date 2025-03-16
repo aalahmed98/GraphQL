@@ -101,6 +101,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             padding: "0.5rem",
             borderRadius: "4px",
             border: "1px solid #ccc",
+            display: "flex",
           }}
         />
         <input
@@ -113,6 +114,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             padding: "0.5rem",
             borderRadius: "4px",
             border: "1px solid #ccc",
+            display: "flex",
           }}
         />
         <button
