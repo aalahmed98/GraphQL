@@ -15,6 +15,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   setLoginPassword,
   handleLogin,
 }) => {
+
   useEffect(() => {
     // Helper function to load external scripts dynamically
     const loadScript = (src: string): Promise<void> => {
@@ -38,7 +39,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         if ((window as any).VANTA) {
           (window as any).VANTA.NET({
             el: "#vanta-bg", // target the full-page background element
-            mouseControls: false,
+            mouseControls: true,
             touchControls: false,
             gyroControls: false,
             minHeight: 200.0,
@@ -57,6 +58,14 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
     initVanta();
   }, []);
+
+  // Handle Enter key press for login
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleLogin();  // Trigger login when Enter is pressed
+    }
+  };
+  
 
   return (
     <>
@@ -96,6 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           placeholder="Username"
           value={loginUsername}
           onChange={(e) => setLoginUsername(e.target.value)}
+          onKeyDown={handleKeyDown}  // Detect Enter key press
           style={{
             width: "100%",
             padding: "0.5rem",
@@ -109,6 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           placeholder="Password"
           value={loginPassword}
           onChange={(e) => setLoginPassword(e.target.value)}
+          onKeyDown={handleKeyDown}  // Detect Enter key press
           style={{
             width: "100%",
             padding: "0.5rem",

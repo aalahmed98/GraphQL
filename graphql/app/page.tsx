@@ -114,7 +114,6 @@ export default function Page() {
   async function handleLogin() {
     try {
       const token = await loginApi(loginUsername, loginPassword);
-      alert("Login successful!");
       localStorage.setItem("jwt", token);
       localStorage.setItem("username", loginUsername);
       setJwt(token);
@@ -251,21 +250,23 @@ export default function Page() {
                   : userSkills.technologies
               }
             />
-            {/* Checkbox-based toggle */}
-            <div className="text-center mt-4">
-              <input
-                type="checkbox"
-                id="animation1"
-                onChange={(e) =>
-                  setCurrentRadarIndex(e.target.checked ? 1 : 0)
-                }
-                checked={currentRadarIndex === 1}
-                className="hidden"
-              />
-              <label htmlFor="animation1">
-                <div className="arrow"></div>
-              </label>
-            </div>
+{/* Checkbox-based toggle */}
+<div className="text-center mt-4">
+  <input
+    type="checkbox"
+    id="animation1"
+    onChange={(e) => setCurrentRadarIndex(e.target.checked ? 1 : 0)}
+    checked={currentRadarIndex === 1}
+    className="hidden"
+  />
+  <label
+    htmlFor="animation1"
+    style={{ display: "block", padding: "1rem", cursor: "pointer" }}
+  >
+    <div className="arrow"></div>
+  </label>
+</div>
+
           </div>
         ) : (
           <p className="text-center text-white w-full">

@@ -19,7 +19,8 @@ const RadarChart = ({ title, skills }: RadarChartProps) => {
     return <p className="text-center text-white">No skill data available for {title}</p>;
   }
 
-  const skillLabels = skills.map(skill => skill.type);
+  // Remove "skill_" prefix from each label
+  const skillLabels = skills.map(skill => skill.type.replace(/^skill_/, ""));
   const skillValues = skills.map(skill => skill.amount);
 
   const chartOptions: ApexOptions = {
@@ -27,6 +28,8 @@ const RadarChart = ({ title, skills }: RadarChartProps) => {
       type: "radar",
       toolbar: { show: false },
       animations: { enabled: true },
+      width: 500,  // Force chart width
+      height: 520, // Force chart height
     },
     xaxis: {
       categories: skillLabels,
@@ -49,9 +52,17 @@ const RadarChart = ({ title, skills }: RadarChartProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
-      <h2 className="text-white text-lg font-bold mb-4">{title}</h2>
-      <div className="w-[500px] h-[550px] p-4 rounded-xl">
-        <ApexChart options={chartOptions} series={chartSeries} type="radar" height={520} />
+
+      <h2 className="text-white text-2xl font-bold mt-12 mb-1 underline">{title}</h2>
+      {/* Fixed container ensures consistent dimensions */}
+      <div className="w-[500px] h-[550px] p-4 rounded-xl mx-auto">
+        <ApexChart
+          options={chartOptions}
+          series={chartSeries}
+          type="radar"
+          width={500}
+          height={520}
+        />
       </div>
     </div>
   );
