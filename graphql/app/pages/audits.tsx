@@ -12,13 +12,16 @@ interface AuditData {
 const AllAuditsPage: React.FC<{ auditData: AuditData }> = ({ auditData }) => {
   const router = useRouter();
 
+  // Create a reversed copy of the validAudits array
+  const reversedAudits = auditData.validAudits.slice().reverse();
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-6">All Audits</h1>
 
       <ul className="w-full max-w-lg space-y-3">
-        {auditData.validAudits.length > 0 ? (
-          auditData.validAudits.map((audit, i) => (
+        {reversedAudits.length > 0 ? (
+          reversedAudits.map((audit, i) => (
             <li key={i} className="bg-gray-800 p-4 rounded-md shadow-md">
               <p className="font-semibold">{audit.group.captainLogin}</p>
               <p className="text-sm text-gray-400">{audit.group.path}</p>
