@@ -2,11 +2,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import RadarChart from "../app/components/RadarChart";
-import XPProgressChart from "../app/components/graphChart";
-import AuditRatioAnimation from "../app/components/AuditRatioAnimation";
-import LoginForm from "../app/components/LoginForm";
-import VantaBackground from "../app/components/VantaBackground"; // Import the Vanta background
+import RadarChart from "./components/RadarChart";
+import XPProgressChart from "./components/graphChart";
+import AuditRatioAnimation from "./components/AuditRatioAnimation";
+import LoginForm from "./components/LoginForm";
+import VantaBackground from "./components/VantaBackground"; // Import the Vanta background
 
 import {
   login as loginApi,
@@ -16,7 +16,7 @@ import {
   fetchUserXp,
   fetchAuditData,
   fetchUserPosition,
-} from "../app/utils/api";
+} from "./utils/api";
 
 // Interfaces for type checking
 interface AuditGroup {
