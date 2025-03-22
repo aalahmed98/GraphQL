@@ -226,7 +226,7 @@ export default function Page() {
         {/* XP Progress Chart Section */}
         {userXp !== null ? (
           <div className="mt-6">
-            <XPProgressChart xpData={userXp} />
+            <XPProgressChart xpData={userXp.map(x => ({ xp: x }))} />
           </div>
         ) : (
           <p>Loading XP Data...</p>
