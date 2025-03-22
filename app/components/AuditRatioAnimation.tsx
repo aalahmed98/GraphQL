@@ -1,27 +1,43 @@
-// AuditRatioAnimation.tsx
+"use client";
 import React, { useRef, useEffect } from "react";
-import ProgressBar from "progressbar.js"
 
 interface AuditRatioAnimationProps {
   auditRatio: number;
 }
 
 const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio }) => {
-
   const progressPathRef = useRef<SVGPathElement>(null);
   const countUpRef = useRef<HTMLSpanElement>(null);
 
-
   useEffect(() => {
     if (progressPathRef.current) {
-      // Map auditRatio (expected 0–2) to a normalized value (0–1)
+      // Normalize auditRatio (expected 0–2) to a value between 0 and 1
       const targetProgress = Math.min(Math.max(auditRatio / 2, 0), 1);
-      const progressBar = new ProgressBar.Path(progressPathRef.current, {
-        duration: 3000,
-        easing: "easeInOut",
-      });
-      progressBar.set(0);
-      progressBar.animate(targetProgress);
+      const path = progressPathRef.current;
+      const pathLength = path.getTotalLength();
+
+      // Set up the dash array and initial dash offset to hide the progress stroke
+      path.style.strokeDasharray = `${pathLength}`;
+      path.style.strokeDashoffset = `${pathLength}`;
+
+      let startTime: number | null = null;
+      const duration = 3000;
+
+      function animate(timestamp: number) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease in-out cubic function
+        const easeProgress =
+          progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        // Calculate the current dash offset based on the target progress
+        const currentOffset = pathLength - easeProgress * (targetProgress * pathLength);
+        path.style.strokeDashoffset = `${currentOffset}`;
+        if (elapsed < duration) {
+          requestAnimationFrame(animate);
+        }
+      }
+      requestAnimationFrame(animate);
     }
   }, [auditRatio]);
 
@@ -31,7 +47,6 @@ const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio })
       animateCountUp(countUpRef.current, 0, auditRatio, 3000, 1);
     }
   }, [auditRatio]);
-
 
   function animateCountUp(
     el: HTMLElement,
@@ -66,7 +81,6 @@ const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio })
         className="mx-auto relative"
       >
         <defs>
-
           <filter id="big-shadow" x="-50%" y="-50%" width="200%" height="200%">
             <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#000" />
           </filter>
@@ -82,7 +96,7 @@ const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio })
           strokeLinecap="round"
           fill="none"
         />
-        {/* Animated progress path (using our ref) */}
+        {/* Animated progress path */}
         <path
           id="chart-progress1"
           ref={progressPathRef}
@@ -96,13 +110,9 @@ const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio })
         />
       </svg>
       <div className="balance-container text-center mt-4">
-        <span className="label block text-gray-400 text-sm mb-1">
-          Audit Ratio
-        </span>
+        <span className="label block text-gray-400 text-sm mb-1">Audit Ratio</span>
         <span className="amount2 text-white text-3xl font-bold">
-          <span className="countup" ref={countUpRef}>
-            0
-          </span>
+          <span className="countup" ref={countUpRef}>0</span>
         </span>
       </div>
     </div>
