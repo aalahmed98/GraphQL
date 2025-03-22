@@ -86,7 +86,7 @@ export async function fetchUserSkills(jwt: string) {
     let technicalSkills: any[] = [];
     let technologies: any[] = [];
 
-    skills.forEach((skill) => {
+    skills.forEach((skill: { type: string; amount: number }) => {
       if (SKILL_MAPPING.technical.some((ts) => skill.type.includes(ts))) {
         technicalSkills.push(skill);
       } else if (
