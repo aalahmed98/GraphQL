@@ -1,6 +1,6 @@
 // AuditRatioAnimation.tsx
 import React, { useRef, useEffect } from "react";
-import ProgressBar from "progressbar.js";
+import ProgressBar from "progressbar.js"
 
 interface AuditRatioAnimationProps {
   auditRatio: number;
