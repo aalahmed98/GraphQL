@@ -38,6 +38,80 @@ export interface UserSkill {
   type: string;
 }
 
+// SVG Icons
+const UserIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5"
+  >
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const ChartIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5"
+  >
+    <path d="M3 3v18h18" />
+    <path d="m19 9-5 5-4-4-3 3" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5 text-success"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const XCircleIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5 text-error"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="15" y1="9" x2="9" y2="15" />
+    <line x1="9" y1="9" x2="15" y2="15" />
+  </svg>
+);
+
 export default function Page() {
   const [jwt, setJwt] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -139,13 +213,41 @@ export default function Page() {
     return (
       <>
         <VantaBackground />
-        <LoginForm
-          loginUsername={loginUsername}
-          loginPassword={loginPassword}
-          setLoginUsername={setLoginUsername}
-          setLoginPassword={setLoginPassword}
-          handleLogin={handleLogin}
-        />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-12 h-12 mx-auto mb-4 text-primary"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Welcome Back
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Sign in to access your dashboard
+              </p>
+            </div>
+            <div className="bg-card border border-border rounded-lg p-6 shadow-lg backdrop-blur-sm">
+              <LoginForm
+                loginUsername={loginUsername}
+                loginPassword={loginPassword}
+                setLoginUsername={setLoginUsername}
+                setLoginPassword={setLoginPassword}
+                handleLogin={handleLogin}
+              />
+            </div>
+          </div>
+        </div>
       </>
     );
   }
@@ -153,128 +255,217 @@ export default function Page() {
   return (
     <>
       <VantaBackground />
-      <div id="profileContainer" className="container active">
-        <h1>Hello, {username}!</h1>
-        <div className="flex flex-wrap justify-between items-center">
-          {/* User Information Section */}
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold text-primary">
-              User Information
-            </h3>
-            <ul className="mt-2 text-muted-foreground">
-              <li>
-                <strong>Name:</strong> {userInfo?.firstName} {userInfo?.lastName}
-              </li>
-              <li>
-                <strong>Email:</strong> {userInfo?.email}
-              </li>
-              <li>
-                <strong>Position:</strong>{" "}
-                {position ? position : "Loading..."}
-              </li>
-              <li>
-                <strong>Campus:</strong> {userInfo?.campus}
-              </li>
-            </ul>
+      <div className="container mx-auto px-4 space-y-8">
+        {/* Welcome Section */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Welcome back, {username}!
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Here's an overview of your progress
+            </p>
           </div>
-          {/* Audit Ratio Animation Section */}
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-14">
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            Sign Out
+          </button>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* User Info Card */}
+          <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <UserIcon />
+              </div>
+              <h3 className="font-semibold">User Profile</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <p className="flex justify-between">
+                <span className="text-muted-foreground">Name</span>
+                <span className="font-medium">
+                  {userInfo?.firstName} {userInfo?.lastName}
+                </span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-muted-foreground">Email</span>
+                <span className="font-medium">{userInfo?.email}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-muted-foreground">Position</span>
+                <span className="font-medium">{position || "Loading..."}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-muted-foreground">Campus</span>
+                <span className="font-medium">{userInfo?.campus}</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Audit Ratio Card */}
+          <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-secondary/10 rounded-lg">
+                <ChartIcon />
+              </div>
+              <h3 className="font-semibold">Audit Ratio</h3>
+            </div>
             {auditStats ? (
-              <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+              <div className="flex items-center justify-center h-32">
+                <AuditRatioAnimation auditRatio={Number(auditStats.auditRatio)} />
+              </div>
             ) : (
-              <p>Loading audit data...</p>
+              <div className="flex items-center justify-center h-32">
+                <div className="animate-pulse text-muted-foreground">
+                  Loading...
+                </div>
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Single container with valid (left) and failed audits (right) */}
-        <div className="flex mt-6">
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="mb-2">Valid Audits</h3>
-            <ul className="audit-list">
+          {/* Valid Audits Card */}
+          <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-success/10 rounded-lg">
+                <CheckCircleIcon />
+              </div>
+              <h3 className="font-semibold">Valid Audits</h3>
+            </div>
+            <div className="space-y-3">
               {auditData?.validAudits?.length > 0 ? (
                 auditData.validAudits.slice(0, 4).map((audit, i) => (
-                  <li key={i} className="audit-item">
-                    {audit.group.captainLogin} -{" "}
-                    {audit.group.path.split("/").pop()}
-                  </li>
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <CheckCircleIcon />
+                    <span className="text-sm truncate">
+                      {audit.group.captainLogin} -{" "}
+                      {audit.group.path.split("/").pop()}
+                    </span>
+                  </div>
                 ))
               ) : (
-                <li className="audit-item">No valid audits available</li>
+                <p className="text-sm text-muted-foreground text-center">
+                  No valid audits available
+                </p>
               )}
-            </ul>
+            </div>
           </div>
-          <div className="w-full md:w-1/2 bg-card rounded-lg shadow-md p-4">
-            <h3 className="mb-2">Failed Audits</h3>
-            <ul className="audit-list">
+
+          {/* Failed Audits Card */}
+          <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-error/10 rounded-lg">
+                <XCircleIcon />
+              </div>
+              <h3 className="font-semibold">Failed Audits</h3>
+            </div>
+            <div className="space-y-3">
               {auditData?.failedAudits?.length > 0 ? (
                 auditData.failedAudits.slice(0, 4).map((audit, i) => (
-                  <li key={i} className="audit-item text-red-500">
-                    {audit.group.captainLogin} -{" "}
-                    {audit.group.path.split("/").pop()}
-                  </li>
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                  >
+                    <XCircleIcon />
+                    <span className="text-sm truncate">
+                      {audit.group.captainLogin} -{" "}
+                      {audit.group.path.split("/").pop()}
+                    </span>
+                  </div>
                 ))
               ) : (
-                <li className="audit-item text-red-500">
+                <p className="text-sm text-muted-foreground text-center">
                   No failed audits available
-                </li>
+                </p>
               )}
-            </ul>
+            </div>
           </div>
         </div>
 
-        {/* XP Progress Chart Section */}
-        {userXp !== null ? (
-          <div className="mt-6">
+        {/* XP Progress Section */}
+        <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+          <h3 className="text-xl font-semibold mb-6">XP Progress</h3>
+          {userXp !== null ? (
             <XPProgressChart xpData={userXp} />
+          ) : (
+            <div className="flex items-center justify-center h-48">
+              <div className="animate-pulse text-muted-foreground">
+                Loading XP data...
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Skills Section */}
+        <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold">Skill Analysis</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setCurrentRadarIndex(0)}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  currentRadarIndex === 0
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-muted/80"
+                }`}
+              >
+                Technical Skills
+              </button>
+              <button
+                onClick={() => setCurrentRadarIndex(1)}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  currentRadarIndex === 1
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-muted/80"
+                }`}
+              >
+                Technologies
+              </button>
+            </div>
           </div>
-        ) : (
-          <p>Loading XP Data...</p>
-        )}
-
-        {/* Skill Radar Section */}
-        <h3 className="text-center text-white text-2xl font-bold mb-4">
-          Skill Radar
-        </h3>
-        {userSkills ? (
-          <div className="relative flex flex-col items-center">
-            <RadarChart
-              title={
-                currentRadarIndex === 0
-                  ? "Technical Skills"
-                  : "Technologies"
-              }
-              skills={
-                currentRadarIndex === 0
-                  ? userSkills.technicalSkills
-                  : userSkills.technologies
-              }
-            />
-{/* Checkbox-based toggle */}
-<div className="text-center mt-4">
-  <input
-    type="checkbox"
-    id="animation1"
-    onChange={(e) => setCurrentRadarIndex(e.target.checked ? 1 : 0)}
-    checked={currentRadarIndex === 1}
-    className="hidden"
-  />
-  <label
-    htmlFor="animation1"
-    style={{ display: "block", padding: "1rem", cursor: "pointer" }}
-  >
-    <div className="arrow"></div>
-  </label>
-</div>
-
-          </div>
-        ) : (
-          <p className="text-center text-white w-full">
-            Loading skills...
-          </p>
-        )}
-
-        <button onClick={logout}>Logout</button>
+          {userSkills ? (
+            <div className="flex justify-center">
+              <RadarChart
+                title={
+                  currentRadarIndex === 0 ? "Technical Skills" : "Technologies"
+                }
+                skills={
+                  currentRadarIndex === 0
+                    ? userSkills.technicalSkills
+                    : userSkills.technologies
+                }
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-pulse text-muted-foreground">
+                Loading skills data...
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

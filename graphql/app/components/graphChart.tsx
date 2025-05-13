@@ -4,7 +4,6 @@ import {
   Area,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
@@ -17,8 +16,8 @@ interface XPProgressChartProps {
 const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip bg-white p-2 border border-gray-300">
-        <p className="label text-black">{`XP: ${payload[0].value}`}</p>
+      <div className="custom-tooltip bg-card border border-border p-2 rounded shadow">
+        <p className="label text-foreground">{`XP: ${payload[0].value}`}</p>
       </div>
     );
   }
@@ -27,7 +26,7 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] 
 
 const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   if (!xpData || xpData.length === 0) {
-    return <p className="text-center text-white">No XP data available</p>;
+    return <p className="text-center text-muted-foreground">No XP data available</p>;
   }
 
   // Format your data for Recharts, rounding xp to the nearest whole number
@@ -37,33 +36,26 @@ const XPProgressChart: React.FC<XPProgressChartProps> = ({ xpData }) => {
   }));
 
   return (
-    <div className="w-full bg-card rounded-lg shadow-md p-4">
-      <div className="flex justify-between items-center">
-        <p className="text-lg font-bold text-gray-900 dark:text-white">XP Progress</p>
-      </div>
-
-      <ResponsiveContainer width="100%" height={300}>
-        <AreaChart data={formattedData}>
-          {/* Define a gradient for the fill under the line */}
+    <div className="w-full bg-card rounded-xl shadow p-0">
+      <ResponsiveContainer width="100%" height={180}>
+        <AreaChart data={formattedData} margin={{ top: 16, right: 8, left: 0, bottom: 0 }}>
           <defs>
-            <linearGradient id="colorXp" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00ff99" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#00ff99" stopOpacity={0} />
+            <linearGradient id="colorXp" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.8} />
+              <stop offset="100%" stopColor="var(--secondary)" stopOpacity={0.8} />
             </linearGradient>
           </defs>
-
-          <CartesianGrid strokeDasharray="3 3" />
-          {/* Hide the x-axis completely */}
-          <XAxis hide stroke="#ccc" />
-          <YAxis stroke="#ccc" />
-          <Tooltip content={<CustomTooltip />} />
-
-          {/* Smooth area line with no dots */}
+          {/* Minimal grid: only horizontal lines, muted color */}
+          {/* Remove CartesianGrid for a cleaner look */}
+          <XAxis hide />
+          <YAxis hide />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--primary)", fillOpacity: 0.05 }} />
           <Area
             type="monotone"
             dataKey="xp"
-            stroke="#00ff99"
+            stroke="var(--primary)"
             fill="url(#colorXp)"
+            strokeWidth={3}
             dot={false}
             activeDot={false}
           />

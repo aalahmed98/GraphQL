@@ -1,60 +1,71 @@
-// VantaBackground.tsx
-import React, { useEffect } from "react";
+"use client";
 
-const VantaBackground: React.FC = () => {
+import React, { useEffect, useRef } from "react";
+
+const VantaBackground = () => {
+  const vantaRef = useRef<HTMLDivElement>(null);
+  const vantaEffect = useRef<any>(null);
+
   useEffect(() => {
-    // Helper function to load external scripts dynamically
-    const loadScript = (src: string): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-        document.body.appendChild(script);
-      });
-    };
+    if (!vantaEffect.current) {
+      const loadScript = async (src: string): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+          }
+          const script = document.createElement("script");
+          script.src = src;
+          script.async = true;
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+          document.body.appendChild(script);
+        });
+      };
 
-    const initVanta = async () => {
-      try {
-        // Adjust the paths as needed (for example, if they're in your public folder)
-        await loadScript("/three.r134.min.js");
-        await loadScript("/vanta.net.min.js");
-
-        if ((window as any).VANTA) {
-          (window as any).VANTA.NET({
-            el: "#vanta-bg", // target the full-page background element
-            mouseControls: false,
-            touchControls: false,
-            gyroControls: false,
-            minHeight: 200.0,
-            minWidth: 200.0,
-            scale: 1.0,
-            scaleMobile: 1.0,
-            color: 0xd4af35,
-            showDots: false,
-          });
+      const initVanta = async () => {
+        try {
+          await loadScript("https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js");
+          await loadScript("https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js");
+          
+          if (window.VANTA && vantaRef.current) {
+            vantaEffect.current = window.VANTA.NET({
+              el: vantaRef.current,
+              mouseControls: true,
+              touchControls: false,
+              gyroControls: false,
+              minHeight: 200.0,
+              minWidth: 200.0,
+              scale: 1.0,
+              scaleMobile: 1.0,
+              color: 0x6366f1, // Using our primary color
+              backgroundColor: 0x0a0a0a, // Using our background color
+              points: 8.00,
+              maxDistance: 25.00,
+              spacing: 20.00,
+            });
+          }
+        } catch (error) {
+          console.error("Error initializing VANTA:", error);
         }
-      } catch (error) {
-        console.error("Error initializing VANTA:", error);
+      };
+
+      initVanta();
+    }
+
+    return () => {
+      if (vantaEffect.current) {
+        vantaEffect.current.destroy();
       }
     };
-
-    initVanta();
   }, []);
 
   return (
     <div
-      id="vanta-bg"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: -1,
-      }}
-    ></div>
+      ref={vantaRef}
+      className="fixed inset-0 -z-10"
+      style={{ background: "var(--background)" }}
+    />
   );
 };
 

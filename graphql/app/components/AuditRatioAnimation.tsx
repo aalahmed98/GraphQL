@@ -1,108 +1,101 @@
+"use client";
+
 // AuditRatioAnimation.tsx
-import React, { useRef, useEffect } from "react";
-import ProgressBar from "progressbar.js";
+import React, { useEffect, useRef, useState } from "react";
 
 interface AuditRatioAnimationProps {
   auditRatio: number;
 }
 
+const DURATION = 2000; // ms
+
 const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio }) => {
-
-  const progressPathRef = useRef<SVGPathElement>(null);
-  const countUpRef = useRef<HTMLSpanElement>(null);
-
+  const [animatedRatio, setAnimatedRatio] = useState(0);
+  const requestRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+  const prevRatioRef = useRef<number>(0);
 
   useEffect(() => {
-    if (progressPathRef.current) {
-      // Map auditRatio (expected 0–2) to a normalized value (0–1)
-      const targetProgress = Math.min(Math.max(auditRatio / 2, 0), 1);
-      const progressBar = new ProgressBar.Path(progressPathRef.current, {
-        duration: 3000,
-        easing: "easeInOut",
-      });
-      progressBar.set(0);
-      progressBar.animate(targetProgress);
-    }
-  }, [auditRatio]);
+    prevRatioRef.current = animatedRatio;
+    setAnimatedRatio(0); // reset for new animation
+    startTimeRef.current = null;
+    if (requestRef.current) cancelAnimationFrame(requestRef.current);
 
-  // Animate the count-up text from 0 to auditRatio
-  useEffect(() => {
-    if (countUpRef.current) {
-      animateCountUp(countUpRef.current, 0, auditRatio, 3000, 1);
-    }
-  }, [auditRatio]);
-
-
-  function animateCountUp(
-    el: HTMLElement,
-    start: number,
-    end: number,
-    duration: number,
-    decimalPlaces: number = 1
-  ) {
-    let startTime: number | null = null;
-    const easeInOutCubic = (t: number) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-    function update(currentTime: number) {
-      if (!startTime) startTime = currentTime;
-      const elapsedTime = currentTime - startTime;
-      const progress = easeInOutCubic(Math.min(elapsedTime / duration, 1));
-      const current = start + (end - start) * progress;
-      el.innerHTML = current.toFixed(decimalPlaces);
-      if (elapsedTime < duration) {
-        requestAnimationFrame(update);
+    function animate(ts: number) {
+      if (!startTimeRef.current) startTimeRef.current = ts;
+      const elapsed = ts - startTimeRef.current;
+      const progress = Math.min(elapsed / DURATION, 1);
+      // Ease in-out cubic
+      const eased = progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      const value = prevRatioRef.current + (auditRatio - prevRatioRef.current) * eased;
+      setAnimatedRatio(value);
+      if (progress < 1) {
+        requestRef.current = requestAnimationFrame(animate);
+      } else {
+        setAnimatedRatio(auditRatio);
       }
     }
-    requestAnimationFrame(update);
-  }
+    requestRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auditRatio]);
+
+  // SVG progress is based on ratio (assuming max is 2.0)
+  const normalized = Math.min(Math.max(animatedRatio / 2, 0), 1);
+  const pathLength = 280;
+  const strokeDashoffset = pathLength * (1 - normalized);
 
   return (
-    <div className="audit-ratio-container flex flex-col items-center">
+    <div className="audit-ratio-container flex flex-col items-center w-full">
       <svg
-        width="280"
-        height="100"
+        width="100%"
+        height="80"
         viewBox="0 0 280 100"
         className="mx-auto relative"
+        preserveAspectRatio="xMidYMid meet"
       >
         <defs>
-
           <filter id="big-shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#000" />
+            <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="var(--primary)" />
           </filter>
-          <clipPath id="cutoff">
-            <rect x="0" y="0" width="280" height="100" />
-          </clipPath>
+          <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="100%" stopColor="var(--secondary)" />
+          </linearGradient>
         </defs>
         <path
           id="chart-path"
           d="M4.09863 85C29.6533 36.8181 80.3275 4 138.667 4C197.006 4 247.68 36.8181 273.235 85"
-          stroke="#62676F"
+          stroke="var(--muted)"
           strokeWidth="8"
           strokeLinecap="round"
           fill="none"
         />
-        {/* Animated progress path (using our ref) */}
         <path
           id="chart-progress1"
-          ref={progressPathRef}
           d="M4.09863 85C29.6533 36.8181 80.3275 4 138.667 4C197.006 4 247.68 36.8181 273.235 85"
-          stroke="#2DB023"
+          stroke="url(#progress-gradient)"
           strokeWidth="8"
           strokeLinecap="round"
           filter="url(#big-shadow)"
-          clipPath="url(#cutoff)"
           fill="none"
+          style={{
+            strokeDasharray: pathLength,
+            strokeDashoffset: strokeDashoffset,
+            transition: 'stroke-dashoffset 0.1s linear'
+          }}
         />
       </svg>
-      <div className="balance-container text-center mt-4">
-        <span className="label block text-gray-400 text-sm mb-1">
+      <div className="balance-container text-center mt-2">
+        <span className="label block text-muted-foreground text-sm mb-1">
           Audit Ratio
         </span>
-        <span className="amount2 text-white text-3xl font-bold">
-          <span className="countup" ref={countUpRef}>
-            0
-          </span>
+        <span className="amount2 text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text">
+          {animatedRatio.toFixed(1)}
         </span>
       </div>
     </div>
