@@ -86,7 +86,7 @@ const AuditRatioAnimation: React.FC<AuditRatioAnimationProps> = ({ auditRatio })
           style={{
             strokeDasharray: pathLength,
             strokeDashoffset: strokeDashoffset,
-            transition: 'stroke-dashoffset 0.1s linear'
+            transition: 'stroke-dashoffset 0.0s linear'
           }}
         />
       </svg>
