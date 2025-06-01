@@ -408,7 +408,7 @@ export default function Page() {
         <div className="bg-card border border-border rounded-lg p-6 hover:shadow-lg transition-shadow">
           <h3 className="text-xl font-semibold mb-6">XP Progress</h3>
           {userXp !== null ? (
-            <XPProgressChart xpData={userXp} />
+            <XPProgressChart xpData={userXp.map(xp => ({ xp }))} />
           ) : (
             <div className="flex items-center justify-center h-48">
               <div className="animate-pulse text-muted-foreground">

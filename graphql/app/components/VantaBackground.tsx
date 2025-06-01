@@ -2,6 +2,13 @@
 
 import React, { useEffect, useRef } from "react";
 
+// Declare VANTA on window object
+declare global {
+  interface Window {
+    VANTA: any;
+  }
+}
+
 const VantaBackground = () => {
   const vantaRef = useRef<HTMLDivElement>(null);
   const vantaEffect = useRef<any>(null);
